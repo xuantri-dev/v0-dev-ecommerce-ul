@@ -1,8 +1,6 @@
 "use client"
 
 import { useAuth } from "@/components/auth-provider"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -10,13 +8,6 @@ import { User, Mail, Phone, MapPin, Calendar } from "lucide-react"
 
 export function ProfileContent() {
   const { user, isLoading, logout } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/auth/login")
-    }
-  }, [user, isLoading, router])
 
   if (isLoading) {
     return (
@@ -27,7 +18,24 @@ export function ProfileContent() {
   }
 
   if (!user) {
-    return null
+    return (
+      <div className="min-h-screen bg-secondary/30 py-16">
+        <div className="container mx-auto px-4 lg:px-8 max-w-4xl">
+          <div className="text-center py-24">
+            <h1 className="font-serif text-4xl md:text-5xl mb-6">My Profile</h1>
+            <p className="text-lg text-muted-foreground mb-8">Please log in to view your profile</p>
+            <div className="flex gap-4 justify-center">
+              <Button asChild size="lg">
+                <a href="/auth/login">Log In</a>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <a href="/auth/register">Register</a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

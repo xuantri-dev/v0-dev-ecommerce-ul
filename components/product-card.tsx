@@ -1,13 +1,13 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
+import type { MouseEvent } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ShoppingBag, Heart } from "lucide-react"
 import { useCart } from "@/components/cart-provider"
+import { useWishlist } from "@/components/wishlist-provider"
 import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/lib/products"
 
@@ -18,9 +18,11 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const { addItem } = useCart()
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
   const { toast } = useToast()
+  const inWishlist = isInWishlist(product.id)
 
-  const handleQuickAdd = (e: React.MouseEvent) => {
+  const handleQuickAdd = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -41,14 +43,23 @@ export function ProductCard({ product }: ProductCardProps) {
     })
   }
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const handleWishlist = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     e.stopPropagation()
 
-    toast({
-      title: "Added to wishlist",
-      description: `${product.name} has been added to your wishlist.`,
-    })
+    if (inWishlist) {
+      removeFromWishlist(product.id)
+      toast({
+        title: "Removed from wishlist",
+        description: `${product.name} has been removed from your wishlist.`,
+      })
+    } else {
+      addToWishlist(product)
+      toast({
+        title: "Added to wishlist",
+        description: `${product.name} has been added to your wishlist.`,
+      })
+    }
   }
 
   return (
@@ -92,9 +103,13 @@ export function ProductCard({ product }: ProductCardProps) {
           <Button
             onClick={handleWishlist}
             size="icon"
-            className="h-12 w-12 bg-background text-foreground hover:bg-background/90 border border-border"
+            className={`h-12 w-12 border border-border ${
+              inWishlist
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-background text-foreground hover:bg-background/90"
+            }`}
           >
-            <Heart className="h-4 w-4" />
+            <Heart className={`h-4 w-4 ${inWishlist ? "fill-current" : ""}`} />
           </Button>
         </div>
       </div>
