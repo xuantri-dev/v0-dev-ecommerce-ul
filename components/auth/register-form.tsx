@@ -8,14 +8,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/components/auth-provider"
+import { useRouter } from "next/navigation"
 
 const registerSchema = z
   .object({
-    firstName: z.string().min(2, "First name must be at least 2 characters"),
-    lastName: z.string().min(2, "Last name must be at least 2 characters"),
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
+    firstName: z.string().min(1, "First name is required").min(2, "First name must be at least 2 characters"),
+    lastName: z.string().min(1, "Last name is required").min(2, "Last name must be at least 2 characters"),
+    email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+    password: z.string().min(1, "Password is required").min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
     acceptTerms: z.boolean().refine((val) => val === true, {
       message: "You must accept the terms and conditions",
     }),
@@ -29,6 +32,10 @@ type RegisterFormData = z.infer<typeof registerSchema>
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+  const { register: registerUser } = useAuth()
+  const router = useRouter()
+
   const {
     register,
     handleSubmit,
@@ -39,15 +46,39 @@ export function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    console.log("[v0] Register data:", data)
-    setIsLoading(false)
-    // Handle registration logic here
+    try {
+      await registerUser({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+      })
+      toast({
+        title: "Account created!",
+        description: "Welcome to ATELIER. Your account has been successfully created.",
+      })
+      router.push("/profile")
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Registration failed",
+        description: "Something went wrong. Please try again.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      title: "Validation Error",
+      description: "Please fill in all required fields correctly.",
+    })
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="firstName">First name</Label>
