@@ -25,7 +25,7 @@ export default function HomePage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative h-[85vh] flex items-center justify-center bg-secondary">
-          <Image src="/placeholder.svg?height=1200&width=1920" alt="Hero" fill className="object-cover" priority />
+          <Image src="/luxury-menswear-fashion-elegant-suit.jpg" alt="Hero" fill className="object-cover" priority />
           <div className="absolute inset-0 bg-foreground/20" />
           <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-balance mb-6 text-background">

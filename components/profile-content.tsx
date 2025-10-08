@@ -39,8 +39,8 @@ const mockCustomer = {
 
 export function ProfileContent() {
   return (
-    <div className="min-h-screen bg-secondary/30 py-16">
-      <div className="container mx-auto px-4 lg:px-8 max-w-4xl">
+    <div className="py-16 px-4 lg:px-8">
+      <div className="container mx-auto max-w-4xl">
         <div className="mb-8">
           <h1 className="font-serif text-4xl md:text-5xl mb-4">My Profile</h1>
           <p className="text-muted-foreground text-lg">Manage your account information</p>
