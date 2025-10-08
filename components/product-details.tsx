@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
+import { useToast } from "@/hooks/use-toast" // Fixed import path
 import type { Product } from "@/lib/products"
 import { Check } from "lucide-react"
 
@@ -17,6 +18,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [added, setAdded] = useState(false)
   const { addItem } = useCart()
+  const { toast } = useToast()
 
   const handleAddToCart = () => {
     if (!selectedSize) return
@@ -28,6 +30,11 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       size: selectedSize,
       quantity: 1,
       image: product.images[0],
+    })
+
+    toast({
+      title: "Added to cart",
+      description: `${product.name} (${selectedSize}) has been added to your cart.`,
     })
 
     setAdded(true)

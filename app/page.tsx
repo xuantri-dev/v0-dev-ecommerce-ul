@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { getFeaturedProducts } from "@/lib/products"
+import { ProductCard } from "@/components/product-card"
 import { ArrowRight } from "lucide-react"
 
 export default function HomePage() {
@@ -46,23 +47,7 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredProducts.map((product) => (
-                <Link key={product.id} href={`/product/${product.id}`} className="group">
-                  <div className="relative aspect-[3/4] mb-4 overflow-hidden bg-secondary">
-                    <Image
-                      src={product.images[0] || "/placeholder.svg"}
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs tracking-widest text-muted-foreground uppercase">{product.category}</p>
-                    <h3 className="font-serif text-xl group-hover:text-muted-foreground transition-colors">
-                      {product.name}
-                    </h3>
-                    <p className="text-lg">${product.price.toLocaleString()}</p>
-                  </div>
-                </Link>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
 
