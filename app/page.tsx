@@ -3,12 +3,20 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { getFeaturedProducts } from "@/lib/products"
+import { getFeaturedProducts, getCategories } from "@/lib/products"
 import { ProductCard } from "@/components/product-card"
 import { ArrowRight } from "lucide-react"
 
 export default function HomePage() {
   const featuredProducts = getFeaturedProducts()
+  const categories = getCategories()
+
+  const getGridClass = (count: number) => {
+    if (count <= 4) return "lg:grid-cols-4"
+    if (count <= 6) return "lg:grid-cols-3"
+    if (count <= 9) return "lg:grid-cols-3"
+    return "lg:grid-cols-4"
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -45,13 +53,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { name: "Outerwear", image: "/luxury-coat.jpg", href: "/shop?category=outerwear" },
-                { name: "Knitwear", image: "/soft-cashmere-sweater.png", href: "/shop?category=knitwear" },
-                { name: "Tailoring", image: "/tailored-suit.jpg", href: "/shop?category=trousers" },
-                { name: "Accessories", image: "/leather-accessories.jpg", href: "/shop?category=accessories" },
-              ].map((category) => (
+            <div className={`grid grid-cols-1 md:grid-cols-2 ${getGridClass(categories.length)} gap-6`}>
+              {categories.map((category) => (
                 <Link
                   key={category.name}
                   href={category.href}

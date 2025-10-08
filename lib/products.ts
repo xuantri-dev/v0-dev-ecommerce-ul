@@ -132,3 +132,26 @@ export function getProductById(id: string) {
 export function getProductsByCategory(category: string) {
   return products.filter((p) => p.category === category)
 }
+
+export function getCategories() {
+  const uniqueCategories = Array.from(new Set(products.map((p) => p.category)))
+
+  // Map categories to their display information
+  const categoryMap: Record<string, { name: string; image: string; href: string }> = {
+    Outerwear: { name: "Outerwear", image: "/luxury-coat.jpg", href: "/shop?category=Outerwear" },
+    Knitwear: { name: "Knitwear", image: "/soft-cashmere-sweater.png", href: "/shop?category=Knitwear" },
+    Trousers: { name: "Trousers", image: "/tailored-suit.jpg", href: "/shop?category=Trousers" },
+    Shirts: { name: "Shirts", image: "/white-oxford-dress-shirt-luxury.jpg", href: "/shop?category=Shirts" },
+    Footwear: { name: "Footwear", image: "/luxury-black-leather-chelsea-boots.jpg", href: "/shop?category=Footwear" },
+    Accessories: { name: "Accessories", image: "/leather-accessories.jpg", href: "/shop?category=Accessories" },
+  }
+
+  return uniqueCategories.map(
+    (category) =>
+      categoryMap[category] || {
+        name: category,
+        image: "/placeholder.svg?height=800&width=600",
+        href: `/shop?category=${category}`,
+      },
+  )
+}
