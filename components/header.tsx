@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ShoppingBag, Menu, X, Search, User, LogOut, Heart } from "lucide-react"
+import { ShoppingBag, Menu, X, Search, User, LogOut, Heart, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
 import { useAuth } from "@/components/auth-provider"
@@ -144,7 +144,13 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
-                      Profile
+                      User Information
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/orders" className="cursor-pointer">
+                      <Package className="mr-2 h-4 w-4" />
+                      My Orders
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

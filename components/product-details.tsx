@@ -4,9 +4,9 @@ import { useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
-import { useToast } from "@/hooks/use-toast" // Fixed import path
+import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/lib/products"
-import { Check } from "lucide-react"
+import { Check, Minus, Plus } from "lucide-react"
 
 interface ProductDetailsProps {
   product: Product
@@ -16,6 +16,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedSize, setSelectedSize] = useState("")
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
   const [selectedImage, setSelectedImage] = useState(0)
+  const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
   const { addItem } = useCart()
   const { toast } = useToast()
@@ -28,18 +29,21 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       name: product.name,
       price: product.price,
       size: selectedSize,
-      quantity: 1,
+      quantity: quantity,
       image: product.images[0],
     })
 
     toast({
       title: "Added to cart",
-      description: `${product.name} (${selectedSize}) has been added to your cart.`,
+      description: `${quantity} × ${product.name} (${selectedSize}) has been added to your cart.`,
     })
 
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
   }
+
+  const incrementQuantity = () => setQuantity((prev) => Math.min(prev + 1, 99))
+  const decrementQuantity = () => setQuantity((prev) => Math.max(prev - 1, 1))
 
   return (
     <div className="container mx-auto px-4 lg:px-8 py-16">
@@ -124,6 +128,36 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                   {size}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Quantity Selection */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium tracking-wide">QUANTITY</label>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center border border-border">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={decrementQuantity}
+                  disabled={quantity <= 1}
+                  className="h-12 w-12 rounded-none hover:bg-muted"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <div className="w-16 h-12 flex items-center justify-center border-x border-border">
+                  <span className="text-base font-medium">{quantity}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={incrementQuantity}
+                  disabled={quantity >= 99}
+                  className="h-12 w-12 rounded-none hover:bg-muted"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
