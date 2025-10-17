@@ -9,7 +9,7 @@ import { Package, Truck, CheckCircle, Clock, ChevronDown, ChevronUp } from "luci
 import Image from "next/image"
 import Link from "next/link"
 
-const mockOrders = [
+const allMockOrders = [
   {
     id: "ORD-2024-001",
     date: "March 15, 2024",
@@ -78,7 +78,7 @@ const mockOrders = [
   {
     id: "ORD-2023-045",
     date: "December 20, 2023",
-    status: "processing",
+    status: "delivered",
     total: 2150.0,
     items: [
       {
@@ -109,8 +109,184 @@ const mockOrders = [
         image: "/pocket-square-silk.jpg",
       },
     ],
-    tracking: null,
+    tracking: "1Z999AA10123456786",
     estimatedDelivery: "December 28, 2023",
+  },
+  {
+    id: "ORD-2023-044",
+    date: "November 10, 2023",
+    status: "delivered",
+    total: 675.0,
+    items: [
+      {
+        id: "9",
+        name: "Cashmere Scarf",
+        price: 225.0,
+        quantity: 1,
+        size: "One Size",
+        color: "Charcoal",
+        image: "/luxury-cashmere-overcoat.jpg",
+      },
+      {
+        id: "10",
+        name: "Leather Gloves",
+        price: 150.0,
+        quantity: 1,
+        size: "M",
+        color: "Black",
+        image: "/leather-belt-black.jpg",
+      },
+      {
+        id: "11",
+        name: "Wool Socks",
+        price: 45.0,
+        quantity: 3,
+        size: "One Size",
+        color: "Navy",
+        image: "/merino-wool-sweater-navy.jpg",
+      },
+    ],
+    tracking: "1Z999AA10123456787",
+    estimatedDelivery: "November 15, 2023",
+  },
+  {
+    id: "ORD-2023-043",
+    date: "October 5, 2023",
+    status: "delivered",
+    total: 1520.0,
+    items: [
+      {
+        id: "12",
+        name: "Linen Shirt",
+        price: 195.0,
+        quantity: 2,
+        size: "L",
+        color: "Cream",
+        image: "/oxford-dress-shirt-white.jpg",
+      },
+      {
+        id: "13",
+        name: "Chinos",
+        price: 165.0,
+        quantity: 2,
+        size: "34",
+        color: "Khaki",
+        image: "/leather-belt-black.jpg",
+      },
+      {
+        id: "14",
+        name: "Blazer",
+        price: 795.0,
+        quantity: 1,
+        size: "42R",
+        color: "Charcoal",
+        image: "/wool-suit-navy.jpg",
+      },
+    ],
+    tracking: "1Z999AA10123456788",
+    estimatedDelivery: "October 10, 2023",
+  },
+  {
+    id: "ORD-2023-042",
+    date: "September 18, 2023",
+    status: "delivered",
+    total: 445.0,
+    items: [
+      {
+        id: "15",
+        name: "Polo Shirt",
+        price: 125.0,
+        quantity: 2,
+        size: "M",
+        color: "Navy",
+        image: "/oxford-dress-shirt-white.jpg",
+      },
+      {
+        id: "16",
+        name: "Leather Wallet",
+        price: 195.0,
+        quantity: 1,
+        size: "One Size",
+        color: "Black",
+        image: "/leather-belt-black.jpg",
+      },
+    ],
+    tracking: "1Z999AA10123456789",
+    estimatedDelivery: "September 22, 2023",
+  },
+  {
+    id: "ORD-2023-041",
+    date: "August 30, 2023",
+    status: "delivered",
+    total: 890.0,
+    items: [
+      {
+        id: "17",
+        name: "Summer Shorts",
+        price: 95.0,
+        quantity: 2,
+        size: "M",
+        color: "Beige",
+        image: "/leather-belt-black.jpg",
+      },
+      {
+        id: "18",
+        name: "T-Shirt",
+        price: 65.0,
+        quantity: 3,
+        size: "M",
+        color: "White",
+        image: "/oxford-dress-shirt-white.jpg",
+      },
+      {
+        id: "19",
+        name: "Sunglasses",
+        price: 450.0,
+        quantity: 1,
+        size: "One Size",
+        color: "Black",
+        image: "/dress-shoes-black-leather.jpg",
+      },
+    ],
+    tracking: "1Z999AA10123456790",
+    estimatedDelivery: "September 5, 2023",
+  },
+  {
+    id: "ORD-2023-040",
+    date: "July 12, 2023",
+    status: "delivered",
+    total: 1125.0,
+    items: [
+      {
+        id: "20",
+        name: "Linen Blazer",
+        price: 595.0,
+        quantity: 1,
+        size: "42R",
+        color: "Cream",
+        image: "/wool-suit-navy.jpg",
+      },
+      {
+        id: "21",
+        name: "Linen Trousers",
+        price: 245.0,
+        quantity: 1,
+        size: "34",
+        color: "Cream",
+        image: "/leather-belt-black.jpg",
+      },
+      {
+        id: "22",
+        name: "Loafers",
+        price: 285.0,
+        quantity: 1,
+        size: "10",
+        color: "Brown",
+        image: "/dress-shoes-black-leather.jpg",
+      },
+    ],
+    tracking: "1Z999AA10123456791",
+    estimatedDelivery: "July 18, 2023",
   },
 ]
 
@@ -135,12 +311,20 @@ const statusConfig = {
   },
 }
 
+const ORDERS_PER_PAGE = 4
+
 export function OrdersContent() {
   const [expandedOrders, setExpandedOrders] = useState<string[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
 
   const toggleOrder = (orderId: string) => {
     setExpandedOrders((prev) => (prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]))
   }
+
+  const totalPages = Math.ceil(allMockOrders.length / ORDERS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ORDERS_PER_PAGE
+  const endIndex = startIndex + ORDERS_PER_PAGE
+  const mockOrders = allMockOrders.slice(startIndex, endIndex)
 
   return (
     <div className="py-16 px-4 lg:px-8">
@@ -265,7 +449,38 @@ export function OrdersContent() {
           })}
         </div>
 
-        {mockOrders.length === 0 && (
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  onClick={() => setCurrentPage(page)}
+                  className="w-10"
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        )}
+
+        {allMockOrders.length === 0 && (
           <Card>
             <CardContent className="py-16 text-center">
               <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />

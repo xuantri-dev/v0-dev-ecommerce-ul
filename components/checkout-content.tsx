@@ -14,11 +14,28 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
+const mockCheckoutData = {
+  firstName: "Alexander",
+  lastName: "Sterling",
+  email: "alexander.sterling@example.com",
+  phone: "+1 (555) 123-4567",
+  address: "142 Madison Avenue",
+  city: "New York",
+  state: "NY",
+  zip: "10016",
+  country: "United States",
+  cardNumber: "4532 1234 5678 9010",
+  expiry: "12 / 26",
+  cvv: "123",
+}
+
 export function CheckoutContent() {
   const { items, getCartTotal } = useCart()
   const router = useRouter()
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
+
+  const [formData, setFormData] = useState(mockCheckoutData)
 
   const subtotal = getCartTotal()
   const shipping = subtotal > 200 ? 0 : 15
@@ -80,20 +97,42 @@ export function CheckoutContent() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" required />
+                      <Input
+                        id="firstName"
+                        value={formData.firstName}
+                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" required />
+                      <Input
+                        id="lastName"
+                        value={formData.lastName}
+                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                        required
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" required />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" required />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      required
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -110,26 +149,51 @@ export function CheckoutContent() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="address">Street Address</Label>
-                    <Input id="address" required />
+                    <Input
+                      id="address"
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="city">City</Label>
-                      <Input id="city" required />
+                      <Input
+                        id="city"
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state">State / Province</Label>
-                      <Input id="state" required />
+                      <Input
+                        id="state"
+                        value={formData.state}
+                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                        required
+                      />
                     </div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="zip">ZIP / Postal Code</Label>
-                      <Input id="zip" required />
+                      <Input
+                        id="zip"
+                        value={formData.zip}
+                        onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="country">Country</Label>
-                      <Input id="country" required />
+                      <Input
+                        id="country"
+                        value={formData.country}
+                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                        required
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -147,16 +211,34 @@ export function CheckoutContent() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="cardNumber">Card Number</Label>
-                    <Input id="cardNumber" placeholder="1234 5678 9012 3456" required />
+                    <Input
+                      id="cardNumber"
+                      placeholder="1234 5678 9012 3456"
+                      value={formData.cardNumber}
+                      onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
+                      required
+                    />
                   </div>
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="expiry">Expiry Date</Label>
-                      <Input id="expiry" placeholder="MM / YY" required />
+                      <Input
+                        id="expiry"
+                        placeholder="MM / YY"
+                        value={formData.expiry}
+                        onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="cvv">CVV</Label>
-                      <Input id="cvv" placeholder="123" required />
+                      <Input
+                        id="cvv"
+                        placeholder="123"
+                        value={formData.cvv}
+                        onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
+                        required
+                      />
                     </div>
                   </div>
                 </CardContent>
