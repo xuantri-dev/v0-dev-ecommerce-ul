@@ -52,7 +52,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Categories Showcase */}
+        {/* Categories Showcase - Editorial Magazine Style */}
         <section className="py-24 px-4 lg:px-8 bg-background">
           <div className="container mx-auto">
             <div className="text-center mb-16">
@@ -62,23 +62,21 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Bento-style asymmetric grid layout */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[280px]">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[300px]">
               {categories.map((category, index) => {
-                // Create varied layouts for visual interest
-                const isLarge = index === 0 || index === 3
-                const isTall = index === 1 || index === 4
-                const spanClass = isLarge
-                  ? "md:col-span-2 md:row-span-2"
-                  : isTall
-                    ? "md:col-span-1 md:row-span-2"
-                    : "md:col-span-2 md:row-span-1"
+                // Create premium editorial layout with featured categories
+                let gridClass = "md:col-span-6 md:row-span-2"
+                if (index === 1) gridClass = "md:col-span-3 md:row-span-2"
+                if (index === 2) gridClass = "md:col-span-3 md:row-span-1"
+                if (index === 3) gridClass = "md:col-span-3 md:row-span-1"
+                if (index === 4) gridClass = "md:col-span-6 md:row-span-1"
+                if (index === 5) gridClass = "md:col-span-6 md:row-span-1"
 
                 return (
                   <Link
                     key={category.name}
                     href={category.href}
-                    className={`group relative overflow-hidden bg-secondary ${spanClass}`}
+                    className={`group relative overflow-hidden bg-secondary ${gridClass}`}
                   >
                     <Image
                       src={category.image || "/placeholder.svg"}
@@ -86,25 +84,23 @@ export default function HomePage() {
                       fill
                       className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
                     />
-                    <div className="absolute inset-0 bg-foreground/20 group-hover:bg-foreground/30 transition-colors duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent group-hover:from-foreground/50 transition-colors duration-500" />
 
-                    {/* Text overlay with different positioning for variety */}
-                    <div className={`absolute inset-0 p-6 flex flex-col ${isLarge ? "justify-end" : "justify-center"}`}>
-                      <div className="space-y-2">
-                        <h3
-                          className={`font-serif text-background ${isLarge ? "text-4xl lg:text-5xl" : "text-2xl lg:text-3xl"} text-balance leading-tight`}
-                        >
+                    {/* Premium text overlay */}
+                    <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                      <div className="space-y-3">
+                        <p className="text-background/80 text-xs tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          Collection
+                        </p>
+                        <h3 className="font-serif text-background text-3xl md:text-4xl text-balance leading-tight">
                           {category.name}
                         </h3>
                         <div className="flex items-center gap-2 text-background/90 text-sm tracking-wide uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          <span>Discover</span>
+                          <span>Explore</span>
                           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </div>
                       </div>
                     </div>
-
-                    {/* Decorative corner accent */}
-                    <div className="absolute top-4 right-4 w-12 h-12 border-t border-r border-background/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </Link>
                 )
               })}
@@ -112,14 +108,19 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Hot Products Section */}
-        <section className="py-24 px-4 lg:px-8 bg-secondary">
+        {/* Hot Products Section - Minimal Grid */}
+        <section className="py-24 px-4 lg:px-8 bg-background border-t border-border">
           <div className="container mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="font-serif text-4xl md:text-5xl mb-4 text-balance">Hot Products</h2>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
-                Trending pieces that are capturing the attention of our discerning clientele
-              </p>
+            <div className="flex items-end justify-between mb-16">
+              <div>
+                <p className="text-muted-foreground text-sm uppercase tracking-widest mb-2">Trending Now</p>
+                <h2 className="font-serif text-4xl md:text-5xl text-balance">Hot Products</h2>
+              </div>
+              <Button asChild variant="ghost" className="hidden md:flex">
+                <Link href="/shop">
+                  View All <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -128,7 +129,7 @@ export default function HomePage() {
               ))}
             </div>
 
-            <div className="text-center mt-12">
+            <div className="text-center mt-12 md:hidden">
               <Button asChild variant="outline" size="lg">
                 <Link href="/shop">View All Hot Products</Link>
               </Button>
@@ -136,34 +137,52 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Featured Products */}
-        <section className="py-24 px-4 lg:px-8">
+        {/* Featured Products - Showcase Style */}
+        <section className="py-24 px-4 lg:px-8 bg-secondary">
           <div className="container mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="font-serif text-4xl md:text-5xl mb-4 text-balance">Featured Collection</h2>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
-                Handpicked pieces that embody sophistication and quality craftsmanship
-              </p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-16">
+              <div className="space-y-6">
+                <p className="text-muted-foreground text-sm uppercase tracking-widest">Curated Selection</p>
+                <h2 className="font-serif text-4xl md:text-5xl text-balance">Featured Collection</h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Handpicked pieces that embody sophistication and quality craftsmanship. Each item in our featured
+                  collection represents the pinnacle of luxury menswear.
+                </p>
+                <Button asChild variant="outline" size="lg">
+                  <Link href="/shop">Explore Featured</Link>
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {featuredProducts.slice(0, 4).map((product) => (
+                  <Link
+                    key={product.id}
+                    href={`/product/${product.id}`}
+                    className="group relative aspect-square overflow-hidden bg-background"
+                  >
+                    <Image
+                      src={product.images[0] || "/placeholder.svg"}
+                      alt={product.name}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </Link>
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
-
-            <div className="text-center mt-16">
-              <Button asChild variant="outline" size="lg">
-                <Link href="/shop">View All Products</Link>
-              </Button>
-            </div>
           </div>
         </section>
 
-        {/* Best-Selling Products Section */}
-        <section className="py-24 px-4 lg:px-8">
+        {/* Best-Selling Products - Highlight Style */}
+        <section className="py-24 px-4 lg:px-8 bg-background border-t border-border">
           <div className="container mx-auto">
             <div className="text-center mb-16">
+              <p className="text-muted-foreground text-sm uppercase tracking-widest mb-2">Customer Favorites</p>
               <h2 className="font-serif text-4xl md:text-5xl mb-4 text-balance">Best-Selling Collection</h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
                 Our most beloved pieces, chosen by gentlemen who appreciate timeless quality
@@ -184,7 +203,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Seasonal Collection */}
+        {/* Seasonal Collection - Full Width Hero */}
         <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">
           <Image src="/winter-fashion-collection.png" alt="Winter Collection" fill className="object-cover" />
           <div className="absolute inset-0 bg-foreground/30" />
@@ -207,12 +226,17 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Promotional Products Section */}
-        <section className="py-24 px-4 lg:px-8 bg-secondary">
+        {/* Promotional Products - Limited Edition Style */}
+        <section className="py-24 px-4 lg:px-8 bg-background border-t border-border">
           <div className="container mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="font-serif text-4xl md:text-5xl mb-4 text-balance">Limited Editions</h2>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
+            <div className="mb-16">
+              <div className="inline-block mb-4">
+                <span className="text-xs font-semibold uppercase tracking-widest text-destructive bg-destructive/10 px-3 py-1">
+                  Limited Availability
+                </span>
+              </div>
+              <h2 className="font-serif text-4xl md:text-5xl text-balance mb-4">Limited Editions</h2>
+              <p className="text-muted-foreground text-lg max-w-2xl text-pretty">
                 Exclusive pieces with limited availability — secure yours before they're gone
               </p>
             </div>
