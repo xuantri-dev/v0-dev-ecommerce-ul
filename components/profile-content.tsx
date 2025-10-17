@@ -27,6 +27,11 @@ const mockCustomer = {
   memberSince: "January 2023",
 }
 
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
 export function ProfileContent() {
   const { toast } = useToast()
   const [editFormData, setEditFormData] = useState({
@@ -60,6 +65,15 @@ export function ProfileContent() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!validateEmail(editFormData.email)) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid email address.",
         variant: "destructive",
       })
       return
@@ -214,9 +228,9 @@ export function ProfileContent() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
+                      {/* Remove type="email" from email input to disable default HTML validation */}
                       <Input
                         id="email"
-                        type="email"
                         value={editFormData.email}
                         onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
                       />

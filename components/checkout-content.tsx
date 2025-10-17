@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { CreditCard, Truck, User } from "lucide-react"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Image from "next/image"
 
 const mockCheckoutData = {
@@ -23,15 +24,13 @@ const mockCheckoutData = {
   state: "NY",
   zip: "10016",
   country: "United States",
-  cardNumber: "4532 1234 5678 9010",
-  expiry: "12 / 26",
-  cvv: "123",
 }
 
 export function CheckoutContent() {
   const router = useRouter()
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState("cod")
 
   const [formData, setFormData] = useState(mockCheckoutData)
 
@@ -58,8 +57,7 @@ export function CheckoutContent() {
 
   const subtotal = mockCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = subtotal > 200 ? 0 : 15
-  const tax = subtotal * 0.08
-  const total = subtotal + shipping + tax
+  const total = subtotal + shipping
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,7 +72,7 @@ export function CheckoutContent() {
     })
 
     setIsProcessing(false)
-    router.push("/orders")
+    router.push("/order-confirmation")
   }
 
   return (
@@ -200,40 +198,46 @@ export function CheckoutContent() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <CreditCard className="h-5 w-5" />
-                    Payment Information
+                    Payment Method
                   </CardTitle>
-                  <CardDescription>All transactions are secure and encrypted</CardDescription>
+                  <CardDescription>Choose your preferred payment method</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cardNumber">Card Number</Label>
-                    <Input
-                      id="cardNumber"
-                      placeholder="1234 5678 9012 3456"
-                      value={formData.cardNumber}
-                      onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                    />
-                  </div>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="expiry">Expiry Date</Label>
-                      <Input
-                        id="expiry"
-                        placeholder="MM / YY"
-                        value={formData.expiry}
-                        onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
-                      />
+                <CardContent>
+                  <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-secondary/50 transition-colors">
+                        <RadioGroupItem value="cod" id="cod" />
+                        <Label htmlFor="cod" className="flex-1 cursor-pointer">
+                          <div className="font-medium">Cash on Delivery (COD)</div>
+                          <div className="text-sm text-muted-foreground">Pay when you receive your order</div>
+                        </Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-secondary/50 transition-colors">
+                        <RadioGroupItem value="momo" id="momo" />
+                        <Label htmlFor="momo" className="flex-1 cursor-pointer">
+                          <div className="font-medium">MoMo</div>
+                          <div className="text-sm text-muted-foreground">Mobile payment via MoMo wallet</div>
+                        </Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-secondary/50 transition-colors">
+                        <RadioGroupItem value="zalopay" id="zalopay" />
+                        <Label htmlFor="zalopay" className="flex-1 cursor-pointer">
+                          <div className="font-medium">ZaloPay</div>
+                          <div className="text-sm text-muted-foreground">Payment via ZaloPay app</div>
+                        </Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-secondary/50 transition-colors">
+                        <RadioGroupItem value="visa" id="visa" />
+                        <Label htmlFor="visa" className="flex-1 cursor-pointer">
+                          <div className="font-medium">Visa / Credit Card</div>
+                          <div className="text-sm text-muted-foreground">Secure credit card payment</div>
+                        </Label>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="cvv">CVV</Label>
-                      <Input
-                        id="cvv"
-                        placeholder="123"
-                        value={formData.cvv}
-                        onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
-                      />
-                    </div>
-                  </div>
+                  </RadioGroup>
                 </CardContent>
               </Card>
             </div>
@@ -279,10 +283,6 @@ export function CheckoutContent() {
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Shipping</span>
                       <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span>${tax.toFixed(2)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-semibold text-lg">
