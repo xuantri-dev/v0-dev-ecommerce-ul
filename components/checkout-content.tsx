@@ -3,7 +3,8 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useCart } from "@/components/cart-provider"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -11,8 +12,6 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { CreditCard, Truck, User } from "lucide-react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
 
 const mockCheckoutData = {
   firstName: "Alexander",
@@ -30,14 +29,34 @@ const mockCheckoutData = {
 }
 
 export function CheckoutContent() {
-  const { items, getCartTotal } = useCart()
   const router = useRouter()
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
 
   const [formData, setFormData] = useState(mockCheckoutData)
 
-  const subtotal = getCartTotal()
+  const mockCartItems = [
+    {
+      id: "1",
+      name: "Cashmere Overcoat",
+      price: 895.0,
+      quantity: 1,
+      selectedSize: "L",
+      selectedColor: "Charcoal",
+      images: ["/luxury-cashmere-overcoat.jpg"],
+    },
+    {
+      id: "2",
+      name: "Merino Wool Sweater",
+      price: 245.0,
+      quantity: 1,
+      selectedSize: "M",
+      selectedColor: "Navy",
+      images: ["/merino-wool-sweater-navy.jpg"],
+    },
+  ]
+
+  const subtotal = mockCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = subtotal > 200 ? 0 : 15
   const tax = subtotal * 0.08
   const total = subtotal + shipping + tax
@@ -56,20 +75,6 @@ export function CheckoutContent() {
 
     setIsProcessing(false)
     router.push("/orders")
-  }
-
-  if (items.length === 0) {
-    return (
-      <div className="py-16 px-4 lg:px-8">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h1 className="font-serif text-4xl md:text-5xl mb-4">Your cart is empty</h1>
-          <p className="text-muted-foreground text-lg mb-8">Add some items to your cart to checkout</p>
-          <Button asChild>
-            <a href="/shop">Continue Shopping</a>
-          </Button>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -101,7 +106,6 @@ export function CheckoutContent() {
                         id="firstName"
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -110,7 +114,6 @@ export function CheckoutContent() {
                         id="lastName"
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                        required
                       />
                     </div>
                   </div>
@@ -121,7 +124,6 @@ export function CheckoutContent() {
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -131,7 +133,6 @@ export function CheckoutContent() {
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      required
                     />
                   </div>
                 </CardContent>
@@ -153,7 +154,6 @@ export function CheckoutContent() {
                       id="address"
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      required
                     />
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
@@ -163,7 +163,6 @@ export function CheckoutContent() {
                         id="city"
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -172,7 +171,6 @@ export function CheckoutContent() {
                         id="state"
                         value={formData.state}
                         onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                        required
                       />
                     </div>
                   </div>
@@ -183,7 +181,6 @@ export function CheckoutContent() {
                         id="zip"
                         value={formData.zip}
                         onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -192,7 +189,6 @@ export function CheckoutContent() {
                         id="country"
                         value={formData.country}
                         onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                        required
                       />
                     </div>
                   </div>
@@ -216,7 +212,6 @@ export function CheckoutContent() {
                       placeholder="1234 5678 9012 3456"
                       value={formData.cardNumber}
                       onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                      required
                     />
                   </div>
                   <div className="grid md:grid-cols-3 gap-4">
@@ -227,7 +222,6 @@ export function CheckoutContent() {
                         placeholder="MM / YY"
                         value={formData.expiry}
                         onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -237,7 +231,6 @@ export function CheckoutContent() {
                         placeholder="123"
                         value={formData.cvv}
                         onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
-                        required
                       />
                     </div>
                   </div>
@@ -250,11 +243,11 @@ export function CheckoutContent() {
               <Card className="sticky top-4">
                 <CardHeader>
                   <CardTitle>Order Summary</CardTitle>
-                  <CardDescription>{items.length} items</CardDescription>
+                  <CardDescription>{mockCartItems.length} items</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-4 max-h-[300px] overflow-y-auto">
-                    {items.map((item) => (
+                    {mockCartItems.map((item) => (
                       <div key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} className="flex gap-4">
                         <div className="relative w-20 h-20 bg-secondary flex-shrink-0">
                           <Image

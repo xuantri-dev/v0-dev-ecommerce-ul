@@ -201,7 +201,6 @@ export function ProfileContent() {
                           id="firstName"
                           value={editFormData.firstName}
                           onChange={(e) => setEditFormData({ ...editFormData, firstName: e.target.value })}
-                          required
                         />
                       </div>
                       <div className="space-y-2">
@@ -210,7 +209,6 @@ export function ProfileContent() {
                           id="lastName"
                           value={editFormData.lastName}
                           onChange={(e) => setEditFormData({ ...editFormData, lastName: e.target.value })}
-                          required
                         />
                       </div>
                     </div>
@@ -221,7 +219,6 @@ export function ProfileContent() {
                         type="email"
                         value={editFormData.email}
                         onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -230,7 +227,6 @@ export function ProfileContent() {
                         id="phone"
                         value={editFormData.phone}
                         onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -239,7 +235,6 @@ export function ProfileContent() {
                         id="address"
                         value={editFormData.address}
                         onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="flex gap-2 justify-end pt-4">
@@ -274,7 +269,6 @@ export function ProfileContent() {
                         type="password"
                         value={passwordFormData.currentPassword}
                         onChange={(e) => setPasswordFormData({ ...passwordFormData, currentPassword: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -284,7 +278,6 @@ export function ProfileContent() {
                         type="password"
                         value={passwordFormData.newPassword}
                         onChange={(e) => setPasswordFormData({ ...passwordFormData, newPassword: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -294,7 +287,6 @@ export function ProfileContent() {
                         type="password"
                         value={passwordFormData.confirmPassword}
                         onChange={(e) => setPasswordFormData({ ...passwordFormData, confirmPassword: e.target.value })}
-                        required
                       />
                     </div>
                     <div className="flex gap-2 justify-end pt-4">
