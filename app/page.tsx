@@ -3,13 +3,22 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { getFeaturedProducts, getCategories } from "@/lib/products"
+import {
+  getFeaturedProducts,
+  getCategories,
+  getHotProducts,
+  getBestSellingProducts,
+  getPromotionalProducts,
+} from "@/lib/products"
 import { ProductCard } from "@/components/product-card"
 import { ArrowRight } from "lucide-react"
 
 export default function HomePage() {
   const featuredProducts = getFeaturedProducts()
   const categories = getCategories()
+  const hotProducts = getHotProducts()
+  const bestSellingProducts = getBestSellingProducts()
+  const promotionalProducts = getPromotionalProducts()
 
   const getGridClass = (count: number) => {
     if (count <= 4) return "lg:grid-cols-4"
@@ -103,6 +112,30 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Hot Products Section */}
+        <section className="py-24 px-4 lg:px-8 bg-secondary">
+          <div className="container mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-serif text-4xl md:text-5xl mb-4 text-balance">Hot Products</h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
+                Trending pieces that are capturing the attention of our discerning clientele
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {hotProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Button asChild variant="outline" size="lg">
+                <Link href="/shop">View All Hot Products</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
         {/* Featured Products */}
         <section className="py-24 px-4 lg:px-8">
           <div className="container mx-auto">
@@ -122,6 +155,30 @@ export default function HomePage() {
             <div className="text-center mt-16">
               <Button asChild variant="outline" size="lg">
                 <Link href="/shop">View All Products</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Best-Selling Products Section */}
+        <section className="py-24 px-4 lg:px-8">
+          <div className="container mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-serif text-4xl md:text-5xl mb-4 text-balance">Best-Selling Collection</h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
+                Our most beloved pieces, chosen by gentlemen who appreciate timeless quality
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {bestSellingProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Button asChild variant="outline" size="lg">
+                <Link href="/shop">Explore Best Sellers</Link>
               </Button>
             </div>
           </div>
@@ -147,6 +204,30 @@ export default function HomePage() {
             >
               <Link href="/shop">Shop Winter Collection</Link>
             </Button>
+          </div>
+        </section>
+
+        {/* Promotional Products Section */}
+        <section className="py-24 px-4 lg:px-8 bg-secondary">
+          <div className="container mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-serif text-4xl md:text-5xl mb-4 text-balance">Limited Editions</h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
+                Exclusive pieces with limited availability — secure yours before they're gone
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {promotionalProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Button asChild variant="outline" size="lg">
+                <Link href="/shop">Shop Limited Editions</Link>
+              </Button>
+            </div>
           </div>
         </section>
 

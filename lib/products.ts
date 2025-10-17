@@ -165,3 +165,18 @@ export function getCategories() {
       },
   )
 }
+
+export function getHotProducts() {
+  // Return products with high stock (trending/popular)
+  return products.filter((p) => p.stock > 10).slice(0, 4)
+}
+
+export function getBestSellingProducts() {
+  // Return featured products (best sellers)
+  return products.filter((p) => p.featured).slice(0, 4)
+}
+
+export function getPromotionalProducts() {
+  // Return products with lower stock (promotional/limited)
+  return products.filter((p) => p.stock < 10).slice(0, 4)
+}
