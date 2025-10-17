@@ -8,6 +8,7 @@ export interface Product {
   sizes: string[]
   colors: string[]
   featured?: boolean
+  stock: number
 }
 
 export const products: Product[] = [
@@ -22,6 +23,7 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL"],
     colors: ["Charcoal", "Navy", "Camel"],
     featured: true,
+    stock: 12,
   },
   {
     id: "2",
@@ -34,6 +36,7 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Grey", "Navy", "Burgundy", "Forest Green"],
     featured: true,
+    stock: 8,
   },
   {
     id: "3",
@@ -46,6 +49,7 @@ export const products: Product[] = [
     sizes: ["30", "32", "34", "36", "38", "40"],
     colors: ["Charcoal", "Navy", "Grey"],
     featured: true,
+    stock: 15,
   },
   {
     id: "4",
@@ -58,6 +62,7 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["White", "Light Blue", "Pink"],
     featured: false,
+    stock: 20,
   },
   {
     id: "5",
@@ -70,6 +75,7 @@ export const products: Product[] = [
     sizes: ["7", "8", "9", "10", "11", "12"],
     colors: ["Black", "Brown", "Tan"],
     featured: true,
+    stock: 10,
   },
   {
     id: "6",
@@ -82,6 +88,7 @@ export const products: Product[] = [
     sizes: ["One Size"],
     colors: ["Navy", "Burgundy", "Forest Green", "Charcoal"],
     featured: false,
+    stock: 25,
   },
   {
     id: "7",
@@ -94,6 +101,7 @@ export const products: Product[] = [
     sizes: ["One Size"],
     colors: ["Cognac", "Black", "Dark Brown"],
     featured: true,
+    stock: 7,
   },
   {
     id: "8",
@@ -106,6 +114,7 @@ export const products: Product[] = [
     sizes: ["One Size"],
     colors: ["Grey", "Navy", "Camel", "Charcoal"],
     featured: false,
+    stock: 18,
   },
   {
     id: "9",
@@ -118,6 +127,7 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL"],
     colors: ["Navy", "Olive", "Tan"],
     featured: true,
+    stock: 9,
   },
 ]
 

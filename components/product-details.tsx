@@ -42,7 +42,17 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     setTimeout(() => setAdded(false), 2000)
   }
 
-  const incrementQuantity = () => setQuantity((prev) => Math.min(prev + 1, 99))
+  const incrementQuantity = () => {
+    if (quantity < product.stock) {
+      setQuantity((prev) => Math.min(prev + 1, 99))
+    } else {
+      toast({
+        title: "Stock limit reached",
+        description: `Only ${product.stock} items available in stock.`,
+        variant: "destructive",
+      })
+    }
+  }
   const decrementQuantity = () => setQuantity((prev) => Math.max(prev - 1, 1))
 
   return (
@@ -131,6 +141,17 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             </div>
           </div>
 
+          {selectedSize && selectedColor && (
+            <div className="text-sm font-medium text-muted-foreground">
+              Quantity: <span className="text-foreground font-semibold">{product.stock}</span>
+            </div>
+          )}
+          {!selectedSize && (
+            <div className="text-sm font-medium text-muted-foreground">
+              Quantity: <span className="text-foreground"></span>
+            </div>
+          )}
+
           {/* Quantity Selection */}
           <div className="space-y-3">
             <label className="text-sm font-medium tracking-wide">QUANTITY</label>
@@ -152,7 +173,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                   variant="ghost"
                   size="icon"
                   onClick={incrementQuantity}
-                  disabled={quantity >= 99}
+                  disabled={quantity >= product.stock}
                   className="h-12 w-12 rounded-none hover:bg-muted"
                 >
                   <Plus className="h-4 w-4" />

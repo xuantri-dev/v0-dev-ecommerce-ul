@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { AlertCircle, CheckCircle, CreditCard, Truck, User } from "lucide-react"
+import { AlertCircle, CreditCard, Truck, User } from "lucide-react"
 import Image from "next/image"
 
 const mockOrderData = {
@@ -47,23 +47,12 @@ export function OrderConfirmationContent() {
 
   const subtotal = mockOrderData.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = subtotal > 200 ? 0 : 15
-  const total = subtotal + shipping
+  const discount = subtotal * 0.1
+  const total = subtotal + shipping - discount
 
   return (
     <div className="py-16 px-4 lg:px-8">
       <div className="container mx-auto max-w-4xl">
-        {/* Success Message */}
-        <div className="mb-8 text-center">
-          <div className="flex justify-center mb-4">
-            <CheckCircle className="h-16 w-16 text-green-600" />
-          </div>
-          <h1 className="font-serif text-4xl md:text-5xl mb-4">Order Confirmed</h1>
-          <p className="text-muted-foreground text-lg mb-2">Thank you for your purchase!</p>
-          <p className="text-muted-foreground">
-            Order Number: <span className="font-semibold text-foreground">{mockOrderData.orderNumber}</span>
-          </p>
-        </div>
-
         {/* Important Note */}
         <Card className="mb-8 border-amber-200 bg-amber-50">
           <CardContent className="pt-6">
@@ -198,6 +187,10 @@ export function OrderConfirmationContent() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
                   <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Discount (10%)</span>
+                  <span className="text-green-600">-${discount.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-semibold text-lg">
