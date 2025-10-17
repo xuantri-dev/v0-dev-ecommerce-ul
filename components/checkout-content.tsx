@@ -72,7 +72,7 @@ export function CheckoutContent() {
     })
 
     setIsProcessing(false)
-    router.push("/order-confirmation")
+    router.push("/payment-success")
   }
 
   return (

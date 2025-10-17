@@ -4,10 +4,32 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
+import { useToast } from "@/hooks/use-toast"
 import { Minus, Plus, X } from "lucide-react"
+import { useState } from "react"
+import { products } from "@/lib/products"
 
 export function CartContent() {
   const { items, removeItem, updateQuantity, totalPrice } = useCart()
+  const { toast } = useToast()
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
+  const totalPages = Math.ceil(items.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedItems = items.slice(startIndex, startIndex + itemsPerPage)
+
+  const handleQuantityChange = (itemId: string, size: string, newQuantity: number) => {
+    const product = products.find((p) => p.id === itemId)
+    if (product && newQuantity > product.stock) {
+      toast({
+        title: "Stock limit exceeded",
+        description: `Only ${product.stock} items available for this product.`,
+        variant: "destructive",
+      })
+      return
+    }
+    updateQuantity(itemId, size, newQuantity)
+  }
 
   if (items.length === 0) {
     return (
@@ -30,7 +52,7 @@ export function CartContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-6">
-          {items.map((item) => (
+          {paginatedItems.map((item) => (
             <div key={`${item.id}-${item.size}`} className="flex gap-6 pb-6 border-b border-border">
               <div className="relative w-32 h-40 flex-shrink-0 bg-secondary">
                 <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
@@ -40,7 +62,9 @@ export function CartContent() {
                 <div className="flex justify-between">
                   <div>
                     <h3 className="font-serif text-xl mb-1">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground">Size: {item.size}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Size: {item.size} • Color: {item.color}
+                    </p>
                   </div>
                   <button
                     onClick={() => removeItem(item.id, item.size)}
@@ -53,14 +77,14 @@ export function CartContent() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <button
-                      onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                      onClick={() => handleQuantityChange(item.id, item.size, item.quantity - 1)}
                       className="p-2 border border-border hover:border-primary transition-colors"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
                     <span className="w-8 text-center">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                      onClick={() => handleQuantityChange(item.id, item.size, item.quantity + 1)}
                       className="p-2 border border-border hover:border-primary transition-colors"
                     >
                       <Plus className="h-4 w-4" />
@@ -71,6 +95,28 @@ export function CartContent() {
               </div>
             </div>
           ))}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-8 pt-6 border-t border-border">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 border border-border rounded hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 border border-border rounded hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Order Summary */}
@@ -78,28 +124,15 @@ export function CartContent() {
           <div className="border border-border p-8 space-y-6 sticky top-24">
             <h2 className="font-serif text-2xl">Order Summary</h2>
 
-            <div className="space-y-3 py-6 border-y border-border">
-              <div className="flex justify-between text-muted-foreground">
-                <span>Subtotal</span>
+            <div className="py-6 border-y border-border">
+              <div className="flex justify-between text-lg font-medium">
+                <span>Total</span>
                 <span>${totalPrice.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>Shipping</span>
-                <span>{totalPrice >= 500 ? "Free" : "$25"}</span>
-              </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>Tax</span>
-                <span>Calculated at checkout</span>
-              </div>
             </div>
 
-            <div className="flex justify-between text-xl font-medium">
-              <span>Total</span>
-              <span>${(totalPrice + (totalPrice >= 500 ? 0 : 25)).toLocaleString()}</span>
-            </div>
-
-            <Button size="lg" className="w-full text-base h-14">
-              Proceed to Checkout
+            <Button asChild size="lg" className="w-full text-base h-14">
+              <Link href="/checkout">Proceed to Checkout</Link>
             </Button>
 
             <Button asChild variant="outline" size="lg" className="w-full bg-transparent">
