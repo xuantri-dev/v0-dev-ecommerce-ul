@@ -5,16 +5,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Package, Truck, CheckCircle, Clock, ChevronDown, ChevronUp } from "lucide-react"
+import { Package, Truck, CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useToast } from "@/hooks/use-toast"
 
 const allMockOrders = [
   {
     id: "ORD-2024-001",
     date: "March 15, 2024",
-    status: "delivered",
+    status: "confirmed",
     total: 1245.0,
+    subtotal: 1145.0,
+    discount: 100.0,
+    discountCode: "SPRING20",
+    shippingFee: 0,
+    shippingAddress: {
+      name: "Alexander Sterling",
+      street: "123 Fashion Avenue",
+      city: "New York",
+      state: "NY",
+      zip: "10001",
+      country: "USA",
+    },
+    paymentMethod: "Visa ending in 4242",
     items: [
       {
         id: "1",
@@ -44,14 +58,25 @@ const allMockOrders = [
         image: "/leather-belt-black.jpg",
       },
     ],
-    tracking: "1Z999AA10123456784",
-    estimatedDelivery: "March 18, 2024",
   },
   {
     id: "ORD-2024-002",
     date: "February 8, 2024",
-    status: "shipped",
+    status: "shipping",
     total: 890.0,
+    subtotal: 890.0,
+    discount: 0,
+    discountCode: null,
+    shippingFee: 0,
+    shippingAddress: {
+      name: "Alexander Sterling",
+      street: "123 Fashion Avenue",
+      city: "New York",
+      state: "NY",
+      zip: "10001",
+      country: "USA",
+    },
+    paymentMethod: "MoMo",
     items: [
       {
         id: "4",
@@ -72,14 +97,25 @@ const allMockOrders = [
         image: "/silk-tie-burgundy.jpg",
       },
     ],
-    tracking: "1Z999AA10123456785",
-    estimatedDelivery: "February 12, 2024",
   },
   {
     id: "ORD-2023-045",
     date: "December 20, 2023",
     status: "delivered",
     total: 2150.0,
+    subtotal: 2150.0,
+    discount: 0,
+    discountCode: null,
+    shippingFee: 0,
+    shippingAddress: {
+      name: "Alexander Sterling",
+      street: "123 Fashion Avenue",
+      city: "New York",
+      state: "NY",
+      zip: "10001",
+      country: "USA",
+    },
+    paymentMethod: "Visa ending in 4242",
     items: [
       {
         id: "6",
@@ -109,14 +145,25 @@ const allMockOrders = [
         image: "/pocket-square-silk.jpg",
       },
     ],
-    tracking: "1Z999AA10123456786",
-    estimatedDelivery: "December 28, 2023",
   },
   {
     id: "ORD-2023-044",
     date: "November 10, 2023",
-    status: "delivered",
+    status: "cancelled",
     total: 675.0,
+    subtotal: 675.0,
+    discount: 0,
+    discountCode: null,
+    shippingFee: 0,
+    shippingAddress: {
+      name: "Alexander Sterling",
+      street: "123 Fashion Avenue",
+      city: "New York",
+      state: "NY",
+      zip: "10001",
+      country: "USA",
+    },
+    paymentMethod: "ZaloPay",
     items: [
       {
         id: "9",
@@ -146,14 +193,25 @@ const allMockOrders = [
         image: "/merino-wool-sweater-navy.jpg",
       },
     ],
-    tracking: "1Z999AA10123456787",
-    estimatedDelivery: "November 15, 2023",
   },
   {
     id: "ORD-2023-043",
     date: "October 5, 2023",
     status: "delivered",
     total: 1520.0,
+    subtotal: 1520.0,
+    discount: 0,
+    discountCode: null,
+    shippingFee: 0,
+    shippingAddress: {
+      name: "Alexander Sterling",
+      street: "123 Fashion Avenue",
+      city: "New York",
+      state: "NY",
+      zip: "10001",
+      country: "USA",
+    },
+    paymentMethod: "Visa ending in 4242",
     items: [
       {
         id: "12",
@@ -183,14 +241,25 @@ const allMockOrders = [
         image: "/wool-suit-navy.jpg",
       },
     ],
-    tracking: "1Z999AA10123456788",
-    estimatedDelivery: "October 10, 2023",
   },
   {
     id: "ORD-2023-042",
     date: "September 18, 2023",
     status: "delivered",
     total: 445.0,
+    subtotal: 445.0,
+    discount: 0,
+    discountCode: null,
+    shippingFee: 0,
+    shippingAddress: {
+      name: "Alexander Sterling",
+      street: "123 Fashion Avenue",
+      city: "New York",
+      state: "NY",
+      zip: "10001",
+      country: "USA",
+    },
+    paymentMethod: "Visa ending in 4242",
     items: [
       {
         id: "15",
@@ -211,14 +280,25 @@ const allMockOrders = [
         image: "/leather-belt-black.jpg",
       },
     ],
-    tracking: "1Z999AA10123456789",
-    estimatedDelivery: "September 22, 2023",
   },
   {
     id: "ORD-2023-041",
     date: "August 30, 2023",
     status: "delivered",
     total: 890.0,
+    subtotal: 890.0,
+    discount: 0,
+    discountCode: null,
+    shippingFee: 0,
+    shippingAddress: {
+      name: "Alexander Sterling",
+      street: "123 Fashion Avenue",
+      city: "New York",
+      state: "NY",
+      zip: "10001",
+      country: "USA",
+    },
+    paymentMethod: "Visa ending in 4242",
     items: [
       {
         id: "17",
@@ -248,14 +328,25 @@ const allMockOrders = [
         image: "/dress-shoes-black-leather.jpg",
       },
     ],
-    tracking: "1Z999AA10123456790",
-    estimatedDelivery: "September 5, 2023",
   },
   {
     id: "ORD-2023-040",
     date: "July 12, 2023",
     status: "delivered",
     total: 1125.0,
+    subtotal: 1125.0,
+    discount: 0,
+    discountCode: null,
+    shippingFee: 0,
+    shippingAddress: {
+      name: "Alexander Sterling",
+      street: "123 Fashion Avenue",
+      city: "New York",
+      state: "NY",
+      zip: "10001",
+      country: "USA",
+    },
+    paymentMethod: "Visa ending in 4242",
     items: [
       {
         id: "20",
@@ -285,22 +376,20 @@ const allMockOrders = [
         image: "/dress-shoes-black-leather.jpg",
       },
     ],
-    tracking: "1Z999AA10123456791",
-    estimatedDelivery: "July 18, 2023",
   },
 ]
 
 const statusConfig = {
-  processing: {
-    label: "Processing",
-    icon: Clock,
-    color: "bg-yellow-500",
-    description: "Your order is being prepared",
-  },
-  shipped: {
-    label: "Shipped",
-    icon: Truck,
+  confirmed: {
+    label: "Confirmed",
+    icon: CheckCircle,
     color: "bg-blue-500",
+    description: "Your order has been confirmed",
+  },
+  shipping: {
+    label: "Shipping",
+    icon: Truck,
+    color: "bg-purple-500",
     description: "Your order is on its way",
   },
   delivered: {
@@ -309,16 +398,25 @@ const statusConfig = {
     color: "bg-green-500",
     description: "Your order has been delivered",
   },
+  cancelled: {
+    label: "Cancelled",
+    icon: XCircle,
+    color: "bg-red-500",
+    description: "Your order has been cancelled",
+  },
 }
 
 const ORDERS_PER_PAGE = 4
 
 export function OrdersContent() {
-  const [expandedOrders, setExpandedOrders] = useState<string[]>([])
+  const { toast } = useToast()
   const [currentPage, setCurrentPage] = useState(1)
 
-  const toggleOrder = (orderId: string) => {
-    setExpandedOrders((prev) => (prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]))
+  const handleCancelOrder = (orderId: string) => {
+    toast({
+      title: "Order Cancelled",
+      description: `Order ${orderId} has been cancelled successfully.`,
+    })
   }
 
   const totalPages = Math.ceil(allMockOrders.length / ORDERS_PER_PAGE)
@@ -336,7 +434,6 @@ export function OrdersContent() {
 
         <div className="space-y-6">
           {mockOrders.map((order) => {
-            const isExpanded = expandedOrders.includes(order.id)
             const StatusIcon = statusConfig[order.status as keyof typeof statusConfig].icon
 
             return (
@@ -358,15 +455,17 @@ export function OrdersContent() {
                         <StatusIcon className="h-3 w-3 mr-1" />
                         {statusConfig[order.status as keyof typeof statusConfig].label}
                       </Badge>
-                      <Button variant="ghost" size="sm" onClick={() => toggleOrder(order.id)}>
-                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                      </Button>
+                      {order.status === "confirmed" && (
+                        <Button variant="outline" size="sm" onClick={() => handleCancelOrder(order.id)}>
+                          Cancel Order
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
 
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {/* Order Summary */}
                     <div className="flex justify-between items-center">
                       <div>
@@ -380,68 +479,84 @@ export function OrdersContent() {
                       <p className="text-xl font-semibold">${order.total.toFixed(2)}</p>
                     </div>
 
-                    {/* Tracking Info */}
-                    {order.tracking && (
-                      <div className="bg-secondary/50 p-4 rounded-lg">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                          <div>
-                            <p className="text-sm font-medium">Tracking Number</p>
-                            <p className="text-sm text-muted-foreground font-mono">{order.tracking}</p>
+                    <Separator />
+
+                    {/* Order Items */}
+                    <div className="space-y-4">
+                      <h4 className="font-semibold">Order Items</h4>
+                      {order.items.map((item) => (
+                        <div key={item.id} className="flex gap-4">
+                          <div className="relative w-20 h-20 bg-secondary flex-shrink-0">
+                            <Image
+                              src={item.image || "/placeholder.svg"}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                            />
                           </div>
-                          <Button variant="outline" size="sm" asChild>
-                            <a href="#" target="_blank" rel="noopener noreferrer">
-                              Track Package
-                            </a>
-                          </Button>
+                          <div className="flex-1">
+                            <p className="font-medium">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Size: {item.size} | Color: {item.color}
+                            </p>
+                            <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                            <p className="text-sm font-medium mt-1">${(item.price * item.quantity).toFixed(2)}</p>
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          Estimated delivery: {order.estimatedDelivery}
-                        </p>
+                      ))}
+                    </div>
+
+                    <Separator />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Shipping Address */}
+                      <div>
+                        <h4 className="font-semibold mb-2">Shipping Address</h4>
+                        <div className="text-sm text-muted-foreground space-y-1">
+                          <p>{order.shippingAddress.name}</p>
+                          <p>{order.shippingAddress.street}</p>
+                          <p>
+                            {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}
+                          </p>
+                          <p>{order.shippingAddress.country}</p>
+                        </div>
                       </div>
-                    )}
 
-                    {/* Expanded Order Details */}
-                    {isExpanded && (
-                      <>
-                        <Separator />
-                        <div className="space-y-4">
-                          <h4 className="font-semibold">Order Items</h4>
-                          {order.items.map((item) => (
-                            <div key={item.id} className="flex gap-4">
-                              <div className="relative w-20 h-20 bg-secondary flex-shrink-0">
-                                <Image
-                                  src={item.image || "/placeholder.svg"}
-                                  alt={item.name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div className="flex-1">
-                                <p className="font-medium">{item.name}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Size: {item.size} | Color: {item.color}
-                                </p>
-                                <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
-                                <p className="text-sm font-medium mt-1">${(item.price * item.quantity).toFixed(2)}</p>
-                              </div>
-                            </div>
-                          ))}
+                      {/* Payment Method */}
+                      <div>
+                        <h4 className="font-semibold mb-2">Payment Method</h4>
+                        <p className="text-sm text-muted-foreground">{order.paymentMethod}</p>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Order Summary Details */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span>${order.subtotal.toFixed(2)}</span>
+                      </div>
+                      {order.discount > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Discount {order.discountCode && `(${order.discountCode})`}
+                          </span>
+                          <span className="text-green-600">-${order.discount.toFixed(2)}</span>
                         </div>
-
-                        <Separator />
-
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" asChild>
-                            <Link href={`/orders/${order.id}`}>View Details</Link>
-                          </Button>
-                          {order.status === "delivered" && (
-                            <Button variant="outline" size="sm">
-                              Reorder
-                            </Button>
-                          )}
-                        </div>
-                      </>
-                    )}
+                      )}
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Shipping {order.shippingFee === 0 ? "(Free Shipping)" : ""}
+                        </span>
+                        <span>{order.shippingFee === 0 ? "Free" : `$${order.shippingFee.toFixed(2)}`}</span>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between font-semibold">
+                        <span>Total Amount</span>
+                        <span>${order.total.toFixed(2)}</span>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
