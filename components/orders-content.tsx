@@ -9,6 +9,7 @@ import { Package, Truck, CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 const allMockOrders = [
   {
@@ -411,12 +412,23 @@ const ORDERS_PER_PAGE = 4
 export function OrdersContent() {
   const { toast } = useToast()
   const [currentPage, setCurrentPage] = useState(1)
+  const [cancelConfirmation, setCancelConfirmation] = useState<{ isOpen: boolean; orderId: string | null }>({
+    isOpen: false,
+    orderId: null,
+  })
 
   const handleCancelOrder = (orderId: string) => {
-    toast({
-      title: "Order Cancelled",
-      description: `Order ${orderId} has been cancelled successfully.`,
-    })
+    setCancelConfirmation({ isOpen: true, orderId })
+  }
+
+  const handleConfirmCancel = () => {
+    if (cancelConfirmation.orderId) {
+      toast({
+        title: "Order Cancelled",
+        description: `Order ${cancelConfirmation.orderId} has been cancelled successfully.`,
+      })
+      setCancelConfirmation({ isOpen: false, orderId: null })
+    }
   }
 
   const totalPages = Math.ceil(allMockOrders.length / ORDERS_PER_PAGE)
@@ -607,6 +619,28 @@ export function OrdersContent() {
             </CardContent>
           </Card>
         )}
+
+        <Dialog
+          open={cancelConfirmation.isOpen}
+          onOpenChange={(open) => setCancelConfirmation({ ...cancelConfirmation, isOpen: open })}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Cancel Order</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to cancel order {cancelConfirmation.orderId}? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-2 justify-end pt-4">
+              <Button variant="outline" onClick={() => setCancelConfirmation({ isOpen: false, orderId: null })}>
+                Keep Order
+              </Button>
+              <Button variant="destructive" onClick={handleConfirmCancel}>
+                Cancel Order
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )

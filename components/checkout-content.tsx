@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { CreditCard, Truck, User } from "lucide-react"
+import { CreditCard, Truck, User, Tag } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Image from "next/image"
 
@@ -26,11 +26,19 @@ const mockCheckoutData = {
   country: "United States",
 }
 
+const mockDiscountCodes = [
+  { code: "SPRING20", discount: 20, description: "20% off spring collection" },
+  { code: "LUXURY50", discount: 50, description: "$50 off orders over $500" },
+  { code: "WELCOME10", discount: 10, description: "10% off first purchase" },
+]
+
 export function CheckoutContent() {
   const router = useRouter()
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("cod")
+  const [discountCode, setDiscountCode] = useState("")
+  const [appliedDiscount, setAppliedDiscount] = useState(0)
 
   const [formData, setFormData] = useState(mockCheckoutData)
 
@@ -57,7 +65,33 @@ export function CheckoutContent() {
 
   const subtotal = mockCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = subtotal > 200 ? 0 : 15
-  const total = subtotal + shipping
+  const total = subtotal + shipping - appliedDiscount
+
+  const handleApplyDiscount = () => {
+    if (!discountCode.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a discount code.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const validCode = mockDiscountCodes.find((c) => c.code.toUpperCase() === discountCode.toUpperCase())
+    if (validCode) {
+      setAppliedDiscount(validCode.discount)
+      toast({
+        title: "Success",
+        description: "Discount code applied successfully.",
+      })
+    } else {
+      toast({
+        title: "Invalid Code",
+        description: "The discount code you entered is not valid.",
+        variant: "destructive",
+      })
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -240,6 +274,59 @@ export function CheckoutContent() {
                   </RadioGroup>
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Tag className="h-5 w-5" />
+                    Discount Code
+                  </CardTitle>
+                  <CardDescription>Have a discount code? Apply it here</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter discount code"
+                      value={discountCode}
+                      onChange={(e) => setDiscountCode(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button type="button" variant="outline" onClick={handleApplyDiscount}>
+                      Apply
+                    </Button>
+                  </div>
+
+                  {appliedDiscount > 0 && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-700">Discount applied: -${appliedDiscount.toFixed(2)}</p>
+                    </div>
+                  )}
+
+                  <Separator />
+
+                  <div>
+                    <h4 className="font-semibold text-sm mb-3">Recommended Codes</h4>
+                    <div className="space-y-2">
+                      {mockDiscountCodes.map((code) => (
+                        <button
+                          key={code.code}
+                          type="button"
+                          onClick={() => setDiscountCode(code.code)}
+                          className="w-full text-left p-3 border rounded-lg hover:bg-secondary/50 transition-colors"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-medium text-sm">{code.code}</p>
+                              <p className="text-xs text-muted-foreground">{code.description}</p>
+                            </div>
+                            <span className="text-sm font-semibold text-primary">${code.discount.toFixed(2)} off</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Order Summary */}
@@ -284,6 +371,12 @@ export function CheckoutContent() {
                       <span className="text-muted-foreground">Shipping</span>
                       <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
                     </div>
+                    {appliedDiscount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Discount</span>
+                        <span className="text-green-600">-${appliedDiscount.toFixed(2)}</span>
+                      </div>
+                    )}
                     <Separator />
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total</span>
