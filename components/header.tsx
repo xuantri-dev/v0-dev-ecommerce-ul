@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ShoppingBag, Menu, X, Search, User, LogOut, Heart, Package } from "lucide-react"
+import { ShoppingBag, Menu, X, Search, User, LogOut, Heart, Package, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
 import { useAuth } from "@/components/auth-provider"
@@ -17,6 +17,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useWishlist } from "@/components/wishlist-provider"
+
+const mockNotifications = [
+  { id: 1, type: "promotion", message: "New collection: Winter Essentials - 20% off", time: "2 hours ago" },
+  { id: 2, type: "order", message: "Your order #12345 has been shipped", time: "1 day ago" },
+  { id: 3, type: "alert", message: "Restock alert: Cashmere Coat is back in stock", time: "3 days ago" },
+  { id: 4, type: "promotion", message: "VIP members: Exclusive early access to new arrivals", time: "1 week ago" },
+]
 
 export function Header() {
   const { totalItems } = useCart()
@@ -100,7 +107,7 @@ export function Header() {
                       <Link
                         key={product.id}
                         href={`/product/${product.id}`}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors cursor-pointer"
                         onClick={() => {
                           setShowSearchResults(false)
                           setSearchQuery("")
@@ -124,52 +131,74 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2">
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="cursor-pointer">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user.firstName} {user.lastName}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer">
-                      <User className="mr-2 h-4 w-4" />
-                      User Information
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/orders" className="cursor-pointer">
-                      <Package className="mr-2 h-4 w-4" />
-                      My Orders
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-                  <Link href="/auth/login">Login</Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative cursor-pointer">
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                    {mockNotifications.length}
+                  </span>
                 </Button>
-                <Button size="sm" asChild className="hidden sm:inline-flex">
-                  <Link href="/auth/register">Register</Link>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <div className="max-h-96 overflow-y-auto">
+                  {mockNotifications.map((notification) => (
+                    <DropdownMenuItem
+                      key={notification.id}
+                      className="flex flex-col items-start gap-1 py-3 cursor-pointer"
+                    >
+                      <p className="text-sm font-medium">{notification.message}</p>
+                      <p className="text-xs text-muted-foreground">{notification.time}</p>
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="cursor-pointer">
+                  <User className="h-5 w-5" />
                 </Button>
-              </>
-            )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user ? `${user.firstName} ${user.lastName}` : "Guest User"}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">{user?.email || "guest@atelier.com"}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    User Information
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/orders" className="cursor-pointer">
+                    <Package className="mr-2 h-4 w-4" />
+                    My Orders
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="ghost" size="sm" asChild className="hidden">
+              <Link href="/auth/login">Login</Link>
+            </Button>
+            <Button size="sm" asChild className="hidden">
+              <Link href="/auth/register">Register</Link>
+            </Button>
 
             {/* Wishlist */}
             <Link href="/wishlist" className="relative">
@@ -265,17 +294,6 @@ export function Header() {
               >
                 ABOUT
               </Link>
-
-              {!user && (
-                <div className="flex flex-col gap-2 pt-4 border-t border-border sm:hidden">
-                  <Button variant="outline" asChild onClick={() => setMobileMenuOpen(false)} className="hidden">
-                    <Link href="/auth/login">Login</Link>
-                  </Button>
-                  <Button asChild onClick={() => setMobileMenuOpen(false)} className="hidden">
-                    <Link href="/auth/register">Register</Link>
-                  </Button>
-                </div>
-              )}
             </div>
           </nav>
         )}
