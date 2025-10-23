@@ -124,4 +124,13 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Add cursor pointer to all clickable buttons */
+  button {
+    @apply cursor-pointer;
+  }
+
+  a {
+    @apply cursor-pointer;
+  }
 }

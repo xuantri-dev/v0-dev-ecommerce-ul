@@ -127,7 +127,7 @@ export function Header() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="cursor-pointer">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -173,7 +173,7 @@ export function Header() {
 
             {/* Wishlist */}
             <Link href="/wishlist" className="relative">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative cursor-pointer">
                 <Heart className="h-5 w-5" />
                 {wishlistCount > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
@@ -185,7 +185,7 @@ export function Header() {
 
             {/* Cart */}
             <Link href="/cart" className="relative">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative cursor-pointer">
                 <ShoppingBag className="h-5 w-5" />
                 {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
@@ -222,7 +222,7 @@ export function Header() {
                           <Link
                             key={product.id}
                             href={`/product/${product.id}`}
-                            className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
+                            className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors cursor-pointer"
                             onClick={() => {
                               setShowSearchResults(false)
                               setSearchQuery("")
@@ -268,10 +268,10 @@ export function Header() {
 
               {!user && (
                 <div className="flex flex-col gap-2 pt-4 border-t border-border sm:hidden">
-                  <Button variant="outline" asChild onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" asChild onClick={() => setMobileMenuOpen(false)} className="hidden">
                     <Link href="/auth/login">Login</Link>
                   </Button>
-                  <Button asChild onClick={() => setMobileMenuOpen(false)}>
+                  <Button asChild onClick={() => setMobileMenuOpen(false)} className="hidden">
                     <Link href="/auth/register">Register</Link>
                   </Button>
                 </div>

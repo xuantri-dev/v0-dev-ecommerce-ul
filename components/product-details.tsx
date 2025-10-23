@@ -6,11 +6,42 @@ import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
 import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/lib/products"
-import { Check, Minus, Plus } from "lucide-react"
+import { Check, Minus, Plus, Star } from "lucide-react"
+import Link from "next/link"
+import { products } from "@/lib/products"
 
 interface ProductDetailsProps {
   product: Product
 }
+
+const mockReviews = [
+  {
+    id: 1,
+    author: "Michael Johnson",
+    rating: 5,
+    date: "2025-01-10",
+    title: "Exceptional Quality",
+    comment:
+      "The craftsmanship is outstanding. This piece is worth every penny. Highly recommend to anyone looking for premium menswear.",
+  },
+  {
+    id: 2,
+    author: "David Chen",
+    rating: 5,
+    date: "2025-01-08",
+    title: "Perfect Fit",
+    comment:
+      "Ordered in my usual size and it fits perfectly. The material feels luxurious and the attention to detail is impressive.",
+  },
+  {
+    id: 3,
+    author: "James Wilson",
+    rating: 4,
+    date: "2025-01-05",
+    title: "Great Product",
+    comment: "Very satisfied with my purchase. The only minor issue was the shipping took a bit longer than expected.",
+  },
+]
 
 export function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedSize, setSelectedSize] = useState("")
@@ -55,6 +86,10 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   }
   const decrementQuantity = () => setQuantity((prev) => Math.max(prev - 1, 1))
 
+  const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4)
+
+  const averageRating = (mockReviews.reduce((sum, review) => sum + review.rating, 0) / mockReviews.length).toFixed(1)
+
   return (
     <div className="container mx-auto px-4 lg:px-8 py-16">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
@@ -75,7 +110,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative aspect-[3/4] bg-secondary ${
+                  className={`relative aspect-[3/4] bg-secondary cursor-pointer ${
                     selectedImage === index ? "ring-2 ring-primary" : ""
                   }`}
                 >
@@ -109,7 +144,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 <button
                   key={color}
                   onClick={() => setSelectedColor(color)}
-                  className={`px-4 py-2 border transition-colors ${
+                  className={`px-4 py-2 border transition-colors cursor-pointer ${
                     selectedColor === color
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-border hover:border-primary"
@@ -129,7 +164,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`py-3 border transition-colors ${
+                  className={`py-3 border transition-colors cursor-pointer ${
                     selectedSize === size
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-border hover:border-primary"
@@ -162,7 +197,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                   size="icon"
                   onClick={decrementQuantity}
                   disabled={quantity <= 1}
-                  className="h-12 w-12 rounded-none hover:bg-muted"
+                  className="h-12 w-12 rounded-none hover:bg-muted cursor-pointer"
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
@@ -174,7 +209,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                   size="icon"
                   onClick={incrementQuantity}
                   disabled={quantity >= product.stock}
-                  className="h-12 w-12 rounded-none hover:bg-muted"
+                  className="h-12 w-12 rounded-none hover:bg-muted cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -185,7 +220,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           {/* Add to Cart */}
           <Button
             size="lg"
-            className="w-full text-base h-14"
+            className="w-full text-base h-14 cursor-pointer"
             onClick={handleAddToCart}
             disabled={!selectedSize || added}
           >
@@ -212,6 +247,77 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           </div>
         </div>
       </div>
+
+      <div className="mt-24 pt-16 border-t border-border">
+        <div className="max-w-4xl">
+          <div className="mb-12">
+            <h2 className="font-serif text-3xl mb-4">Customer Reviews</h2>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-5 w-5 ${
+                      i < Math.floor(Number.parseFloat(averageRating))
+                        ? "fill-primary text-primary"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-lg font-medium">{averageRating} out of 5</span>
+              <span className="text-sm text-muted-foreground">({mockReviews.length} reviews)</span>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {mockReviews.map((review) => (
+              <div key={review.id} className="pb-8 border-b border-border last:border-b-0">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="font-medium text-lg">{review.title}</h3>
+                    <p className="text-sm text-muted-foreground">{review.author}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{new Date(review.date).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-1 mb-3">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${i < review.rating ? "fill-primary text-primary" : "text-muted-foreground"}`}
+                    />
+                  ))}
+                </div>
+                <p className="text-muted-foreground leading-relaxed">{review.comment}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {relatedProducts.length > 0 && (
+        <div className="mt-24 pt-16 border-t border-border">
+          <h2 className="font-serif text-3xl mb-12">Related Products</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {relatedProducts.map((relatedProduct) => (
+              <Link key={relatedProduct.id} href={`/product/${relatedProduct.id}`} className="group">
+                <div className="relative aspect-[3/4] bg-secondary mb-4 overflow-hidden">
+                  <Image
+                    src={relatedProduct.images[0] || "/placeholder.svg"}
+                    alt={relatedProduct.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <h3 className="font-medium text-sm tracking-wide mb-2 group-hover:text-muted-foreground transition-colors">
+                  {relatedProduct.name}
+                </h3>
+                <p className="text-lg font-medium">${relatedProduct.price.toLocaleString()}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
