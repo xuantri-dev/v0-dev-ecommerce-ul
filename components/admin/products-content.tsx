@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { mockProducts } from "@/lib/admin-data"
 import { Edit2, Trash2, Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -13,12 +15,15 @@ interface ProductForm {
   price: string
   stock: string
   description: string
+  images: (string | null)[]
 }
 
 export function ProductsContent() {
   const [products, setProducts] = useState(mockProducts)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [deleteProductId, setDeleteProductId] = useState<number | null>(null)
   const [editingProduct, setEditingProduct] = useState<(typeof mockProducts)[0] | null>(null)
   const [formData, setFormData] = useState<ProductForm>({
     name: "",
@@ -26,6 +31,7 @@ export function ProductsContent() {
     price: "",
     stock: "",
     description: "",
+    images: [null, null],
   })
   const { toast } = useToast()
 
@@ -57,7 +63,7 @@ export function ProductsContent() {
     if (!validateForm()) return
 
     const newProduct = {
-      id: Math.max(...products.map((p) => Number.parseInt(p.id))) + 1,
+      id: Math.max(...products.map((p) => Number.parseInt(p.id.toString()))) + 1,
       name: formData.name,
       category: formData.category,
       price: Number.parseFloat(formData.price),
@@ -69,10 +75,11 @@ export function ProductsContent() {
             ? "Low Stock"
             : "Out of Stock",
       description: formData.description,
+      images: formData.images.filter((img) => img !== null) as string[],
     }
 
     setProducts([...products, newProduct])
-    setFormData({ name: "", category: "", price: "", stock: "", description: "" })
+    setFormData({ name: "", category: "", price: "", stock: "", description: "", images: [null, null] })
     setIsAddModalOpen(false)
     toast({ title: "Success", description: "Product added successfully" })
   }
@@ -95,12 +102,13 @@ export function ProductsContent() {
                   ? "Low Stock"
                   : "Out of Stock",
             description: formData.description,
+            images: formData.images.filter((img) => img !== null) as string[],
           }
         : p,
     )
 
     setProducts(updatedProducts)
-    setFormData({ name: "", category: "", price: "", stock: "", description: "" })
+    setFormData({ name: "", category: "", price: "", stock: "", description: "", images: [null, null] })
     setIsEditModalOpen(false)
     setEditingProduct(null)
     toast({ title: "Success", description: "Product updated successfully" })
@@ -114,13 +122,33 @@ export function ProductsContent() {
       price: product.price.toString(),
       stock: product.stock.toString(),
       description: product.description || "",
+      images: [...product.images, null].slice(0, 2),
     })
     setIsEditModalOpen(true)
   }
 
-  const handleDeleteProduct = (id: number) => {
-    setProducts(products.filter((p) => p.id !== id))
-    toast({ title: "Success", description: "Product deleted successfully" })
+  const handleDeleteImage = (index: number) => {
+    const newImages = [...formData.images]
+    newImages[index] = null
+    setFormData({ ...formData, images: newImages })
+  }
+
+  const handleImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const newImages = [...formData.images]
+      newImages[index] = `/uploaded-${Date.now()}-${file.name}`
+      setFormData({ ...formData, images: newImages })
+    }
+  }
+
+  const confirmDeleteProduct = () => {
+    if (deleteProductId !== null) {
+      setProducts(products.filter((p) => p.id !== deleteProductId))
+      toast({ title: "Success", description: "Product deleted successfully" })
+    }
+    setIsDeleteConfirmOpen(false)
+    setDeleteProductId(null)
   }
 
   return (
@@ -179,7 +207,10 @@ export function ProductsContent() {
                       </button>
                       <button
                         className="p-2 hover:bg-muted rounded transition-colors text-destructive cursor-pointer"
-                        onClick={() => handleDeleteProduct(product.id)}
+                        onClick={() => {
+                          setDeleteProductId(product.id)
+                          setIsDeleteConfirmOpen(true)
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -194,7 +225,7 @@ export function ProductsContent() {
 
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background border border-border rounded-lg p-8 max-w-md w-full mx-4">
+          <div className="bg-background border border-border rounded-lg p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-serif text-2xl">Add New Product</h2>
               <button
@@ -248,6 +279,24 @@ export function ProductsContent() {
                   placeholder="Enter description"
                 />
               </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Product Image 1</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(0, e)}
+                  className="w-full text-sm cursor-pointer"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Product Image 2</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(1, e)}
+                  className="w-full text-sm cursor-pointer"
+                />
+              </div>
             </div>
 
             <div className="flex gap-3 mt-8">
@@ -264,14 +313,14 @@ export function ProductsContent() {
 
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background border border-border rounded-lg p-8 max-w-md w-full mx-4">
+          <div className="bg-background border border-border rounded-lg p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-serif text-2xl">Edit Product</h2>
               <button
                 onClick={() => {
                   setIsEditModalOpen(false)
                   setEditingProduct(null)
-                  setFormData({ name: "", category: "", price: "", stock: "", description: "" })
+                  setFormData({ name: "", category: "", price: "", stock: "", description: "", images: [null, null] })
                 }}
                 className="p-1 hover:bg-muted rounded transition-colors cursor-pointer"
               >
@@ -322,6 +371,29 @@ export function ProductsContent() {
                   placeholder="Enter description"
                 />
               </div>
+              {formData.images.map((image, index) => (
+                <div key={index}>
+                  <label className="text-sm font-medium mb-2 block">Product Image {index + 1}</label>
+                  {image ? (
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm text-muted-foreground flex-1 truncate">{image}</span>
+                      <button
+                        onClick={() => handleDeleteImage(index)}
+                        className="p-1 hover:bg-destructive/10 rounded transition-colors cursor-pointer text-destructive"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(index, e)}
+                      className="w-full text-sm cursor-pointer"
+                    />
+                  )}
+                </div>
+              ))}
             </div>
 
             <div className="flex gap-3 mt-8">
@@ -330,7 +402,7 @@ export function ProductsContent() {
                 onClick={() => {
                   setIsEditModalOpen(false)
                   setEditingProduct(null)
-                  setFormData({ name: "", category: "", price: "", stock: "", description: "" })
+                  setFormData({ name: "", category: "", price: "", stock: "", description: "", images: [null, null] })
                 }}
                 className="flex-1 cursor-pointer"
               >
@@ -338,6 +410,32 @@ export function ProductsContent() {
               </Button>
               <Button onClick={handleEditProduct} className="flex-1 cursor-pointer">
                 Update Product
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDeleteConfirmOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background border border-border rounded-lg p-8 max-w-sm w-full mx-4">
+            <h2 className="font-serif text-2xl mb-4">Delete Product?</h2>
+            <p className="text-muted-foreground mb-8">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsDeleteConfirmOpen(false)
+                  setDeleteProductId(null)
+                }}
+                className="flex-1 cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button onClick={confirmDeleteProduct} variant="destructive" className="flex-1 cursor-pointer">
+                Delete
               </Button>
             </div>
           </div>

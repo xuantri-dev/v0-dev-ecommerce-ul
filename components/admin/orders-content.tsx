@@ -1,7 +1,19 @@
+"use client"
+
 import { mockOrders } from "@/lib/admin-data"
 import { Eye, Trash2 } from "lucide-react"
+import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 export function OrdersContent() {
+  const [orders, setOrders] = useState(mockOrders)
+  const { toast } = useToast()
+
+  const handleDeleteOrder = (id: string) => {
+    setOrders(orders.filter((o) => o.id !== id))
+    toast({ title: "Success", description: "Order deleted successfully" })
+  }
+
   return (
     <div className="p-8">
       <div>
@@ -23,7 +35,7 @@ export function OrdersContent() {
               </tr>
             </thead>
             <tbody>
-              {mockOrders.map((order) => (
+              {orders.map((order) => (
                 <tr key={order.id} className="border-b border-border hover:bg-muted/50">
                   <td className="px-6 py-3 text-sm font-mono">{order.id}</td>
                   <td className="px-6 py-3 text-sm">{order.customer}</td>
@@ -46,10 +58,13 @@ export function OrdersContent() {
                   </td>
                   <td className="px-6 py-3 text-sm">
                     <div className="flex items-center gap-2">
-                      <button className="p-2 hover:bg-muted rounded transition-colors">
+                      <button className="p-2 hover:bg-muted rounded transition-colors cursor-pointer">
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button className="p-2 hover:bg-muted rounded transition-colors text-destructive">
+                      <button
+                        className="p-2 hover:bg-muted rounded transition-colors text-destructive cursor-pointer"
+                        onClick={() => handleDeleteOrder(order.id)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
