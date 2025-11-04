@@ -52,11 +52,11 @@ export const mockProducts = [
 ]
 
 export const mockCategories = [
-  { id: 1, name: "Outerwear", productCount: 12, status: "Active" },
-  { id: 2, name: "Knitwear", productCount: 8, status: "Active" },
-  { id: 3, name: "Trousers", productCount: 15, status: "Active" },
-  { id: 4, name: "Shirts", productCount: 20, status: "Active" },
-  { id: 5, name: "Footwear", productCount: 10, status: "Active" },
+  { id: 1, name: "Outerwear", image: "/outerwear-category.jpg", productCount: 12, status: "Active" },
+  { id: 2, name: "Knitwear", image: "/knitwear-category.jpg", productCount: 8, status: "Active" },
+  { id: 3, name: "Trousers", image: "/trousers-category.jpg", productCount: 15, status: "Active" },
+  { id: 4, name: "Shirts", image: "/shirts-category.jpg", productCount: 20, status: "Active" },
+  { id: 5, name: "Footwear", image: "/footwear-category.jpg", productCount: 10, status: "Active" },
 ]
 
 export const mockUsers = [

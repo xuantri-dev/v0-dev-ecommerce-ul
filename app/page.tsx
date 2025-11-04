@@ -52,7 +52,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Categories Showcase - Editorial Magazine Style */}
+        {/* Categories Showcase - Slider Style */}
         <section className="py-24 px-4 lg:px-8 bg-background">
           <div className="container mx-auto">
             <div className="text-center mb-16">
@@ -62,48 +62,38 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[300px]">
-              {categories.map((category, index) => {
-                // Create premium editorial layout with featured categories
-                let gridClass = "md:col-span-6 md:row-span-2"
-                if (index === 1) gridClass = "md:col-span-3 md:row-span-2"
-                if (index === 2) gridClass = "md:col-span-3 md:row-span-1"
-                if (index === 3) gridClass = "md:col-span-3 md:row-span-1"
-                if (index === 4) gridClass = "md:col-span-6 md:row-span-1"
-                if (index === 5) gridClass = "md:col-span-6 md:row-span-1"
+            <div className="flex gap-6 overflow-x-auto pb-4 scroll-smooth">
+              {categories.map((category) => (
+                <Link
+                  key={category.name}
+                  href={category.href}
+                  className="group flex-shrink-0 w-72 relative overflow-hidden bg-secondary h-96"
+                >
+                  <Image
+                    src={category.image || "/placeholder.svg"}
+                    alt={category.name}
+                    fill
+                    className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent group-hover:from-foreground/50 transition-colors duration-500" />
 
-                return (
-                  <Link
-                    key={category.name}
-                    href={category.href}
-                    className={`group relative overflow-hidden bg-secondary ${gridClass}`}
-                  >
-                    <Image
-                      src={category.image || "/placeholder.svg"}
-                      alt={category.name}
-                      fill
-                      className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent group-hover:from-foreground/50 transition-colors duration-500" />
-
-                    {/* Premium text overlay */}
-                    <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                      <div className="space-y-3">
-                        <p className="text-background/80 text-xs tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          Collection
-                        </p>
-                        <h3 className="font-serif text-background text-3xl md:text-4xl text-balance leading-tight">
-                          {category.name}
-                        </h3>
-                        <div className="flex items-center gap-2 text-background/90 text-sm tracking-wide uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          <span>Explore</span>
-                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </div>
+                  {/* Premium text overlay */}
+                  <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                    <div className="space-y-3">
+                      <p className="text-background/80 text-xs tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        Collection
+                      </p>
+                      <h3 className="font-serif text-background text-2xl text-balance leading-tight">
+                        {category.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-background/90 text-sm tracking-wide uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <span>Explore</span>
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </div>
                     </div>
-                  </Link>
-                )
-              })}
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         </section>

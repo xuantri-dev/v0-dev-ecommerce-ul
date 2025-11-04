@@ -1,14 +1,18 @@
 "use client"
 
+import type React from "react"
+
 import { mockCategories } from "@/lib/admin-data"
 import { Edit2, Trash2, Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
+import Image from "next/image"
 
 interface CategoryForm {
   name: string
+  image: string | null
 }
 
 export function CategoriesContent() {
@@ -16,7 +20,7 @@ export function CategoriesContent() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<(typeof mockCategories)[0] | null>(null)
-  const [formData, setFormData] = useState<CategoryForm>({ name: "" })
+  const [formData, setFormData] = useState<CategoryForm>({ name: "", image: null })
   const { toast } = useToast()
 
   const validateForm = () => {
@@ -33,12 +37,13 @@ export function CategoriesContent() {
     const newCategory = {
       id: Math.max(...categories.map((c) => c.id)) + 1,
       name: formData.name,
+      image: formData.image || "/placeholder.svg",
       productCount: 0,
       status: "Active",
     }
 
     setCategories([...categories, newCategory])
-    setFormData({ name: "" })
+    setFormData({ name: "", image: null })
     setIsAddModalOpen(false)
     toast({ title: "Success", description: "Category added successfully" })
   }
@@ -46,10 +51,12 @@ export function CategoriesContent() {
   const handleEditCategory = () => {
     if (!validateForm()) return
 
-    const updatedCategories = categories.map((c) => (c.id === editingCategory?.id ? { ...c, name: formData.name } : c))
+    const updatedCategories = categories.map((c) =>
+      c.id === editingCategory?.id ? { ...c, name: formData.name, image: formData.image || c.image } : c,
+    )
 
     setCategories(updatedCategories)
-    setFormData({ name: "" })
+    setFormData({ name: "", image: null })
     setIsEditModalOpen(false)
     setEditingCategory(null)
     toast({ title: "Success", description: "Category updated successfully" })
@@ -57,13 +64,24 @@ export function CategoriesContent() {
 
   const openEditModal = (category: (typeof mockCategories)[0]) => {
     setEditingCategory(category)
-    setFormData({ name: category.name })
+    setFormData({ name: category.name, image: category.image })
     setIsEditModalOpen(true)
   }
 
   const handleDeleteCategory = (id: number) => {
     setCategories(categories.filter((c) => c.id !== id))
     toast({ title: "Success", description: "Category deleted successfully" })
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setFormData({ ...formData, image: `/uploaded-${Date.now()}-${file.name}` })
+    }
+  }
+
+  const handleDeleteImage = () => {
+    setFormData({ ...formData, image: null })
   }
 
   return (
@@ -84,6 +102,7 @@ export function CategoriesContent() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-muted/50">
+                <th className="px-6 py-3 text-left text-sm font-semibold">Category Image</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Category Name</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Product Count</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
@@ -93,6 +112,16 @@ export function CategoriesContent() {
             <tbody>
               {categories.map((category) => (
                 <tr key={category.id} className="border-b border-border hover:bg-muted/50">
+                  <td className="px-6 py-3 text-sm">
+                    <div className="w-12 h-12 relative rounded overflow-hidden bg-muted">
+                      <Image
+                        src={category.image || "/placeholder.svg"}
+                        alt={category.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </td>
                   <td className="px-6 py-3 text-sm font-medium">{category.name}</td>
                   <td className="px-6 py-3 text-sm">{category.productCount} products</td>
                   <td className="px-6 py-3 text-sm">
@@ -125,7 +154,7 @@ export function CategoriesContent() {
 
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background border border-border rounded-lg p-8 max-w-md w-full mx-4">
+          <div className="bg-background border border-border rounded-lg p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-serif text-2xl">Add New Category</h2>
               <button
@@ -141,8 +170,17 @@ export function CategoriesContent() {
                 <label className="text-sm font-medium mb-2 block">Category Name</label>
                 <Input
                   value={formData.name}
-                  onChange={(e) => setFormData({ name: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Enter category name"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Category Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full text-sm cursor-pointer"
                 />
               </div>
             </div>
@@ -161,14 +199,14 @@ export function CategoriesContent() {
 
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background border border-border rounded-lg p-8 max-w-md w-full mx-4">
+          <div className="bg-background border border-border rounded-lg p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-serif text-2xl">Edit Category</h2>
               <button
                 onClick={() => {
                   setIsEditModalOpen(false)
                   setEditingCategory(null)
-                  setFormData({ name: "" })
+                  setFormData({ name: "", image: null })
                 }}
                 className="p-1 hover:bg-muted rounded transition-colors cursor-pointer"
               >
@@ -181,9 +219,32 @@ export function CategoriesContent() {
                 <label className="text-sm font-medium mb-2 block">Category Name</label>
                 <Input
                   value={formData.name}
-                  onChange={(e) => setFormData({ name: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Enter category name"
                 />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Category Image</label>
+                {formData.image ? (
+                  <div className="space-y-2 mb-4">
+                    <div className="relative w-full aspect-square rounded overflow-hidden bg-muted">
+                      <Image src={formData.image || "/placeholder.svg"} alt="Category" fill className="object-cover" />
+                    </div>
+                    <button
+                      onClick={handleDeleteImage}
+                      className="w-full p-2 border border-destructive text-destructive rounded hover:bg-destructive/10 transition-colors cursor-pointer text-sm"
+                    >
+                      Delete Image
+                    </button>
+                  </div>
+                ) : (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="w-full text-sm cursor-pointer"
+                  />
+                )}
               </div>
             </div>
 
@@ -193,7 +254,7 @@ export function CategoriesContent() {
                 onClick={() => {
                   setIsEditModalOpen(false)
                   setEditingCategory(null)
-                  setFormData({ name: "" })
+                  setFormData({ name: "", image: null })
                 }}
                 className="flex-1 cursor-pointer"
               >
