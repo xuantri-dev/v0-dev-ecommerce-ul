@@ -21,6 +21,7 @@ export function CategoriesContent() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<(typeof mockCategories)[0] | null>(null)
   const [formData, setFormData] = useState<CategoryForm>({ name: "", image: null })
+  const [searchTerm, setSearchTerm] = useState("")
   const { toast } = useToast()
 
   const validateForm = () => {
@@ -84,6 +85,10 @@ export function CategoriesContent() {
     setFormData({ ...formData, image: null })
   }
 
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
+
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
@@ -95,6 +100,15 @@ export function CategoriesContent() {
           <Plus className="h-4 w-4" />
           Add Category
         </Button>
+      </div>
+
+      <div className="mb-6">
+        <Input
+          placeholder="Search categories by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
       </div>
 
       <div className="bg-card border border-border rounded overflow-hidden">
@@ -110,10 +124,10 @@ export function CategoriesContent() {
               </tr>
             </thead>
             <tbody>
-              {categories.map((category) => (
+              {filteredCategories.map((category) => (
                 <tr key={category.id} className="border-b border-border hover:bg-muted/50">
                   <td className="px-6 py-3 text-sm">
-                    <div className="w-12 h-12 relative rounded overflow-hidden bg-muted">
+                    <div className="w-16 h-16 relative rounded overflow-hidden bg-muted flex-shrink-0">
                       <Image
                         src={category.image || "/placeholder.svg"}
                         alt={category.name}

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Package, Layers, Users, ShoppingCart } from "lucide-react"
+import { LayoutDashboard, Package, Layers, Users, ShoppingCart, Tag } from "lucide-react"
 
 export function AdminSidebar() {
   const pathname = usePathname()
@@ -65,6 +65,16 @@ export function AdminSidebar() {
         >
           <ShoppingCart className="h-5 w-5" />
           <span>Orders</span>
+        </Link>
+
+        <Link
+          href="/admin/vouchers"
+          className={`flex items-center gap-3 px-4 py-3 rounded transition-colors ${
+            isActive("/admin/vouchers") ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-muted"
+          }`}
+        >
+          <Tag className="h-5 w-5" />
+          <span>Vouchers</span>
         </Link>
       </nav>
 

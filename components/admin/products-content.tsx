@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
+import Image from "next/image"
 
 interface ProductForm {
   name: string
@@ -20,6 +21,7 @@ interface ProductForm {
 
 export function ProductsContent() {
   const [products, setProducts] = useState(mockProducts)
+  const [searchTerm, setSearchTerm] = useState("")
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
@@ -34,6 +36,8 @@ export function ProductsContent() {
     images: [null, null],
   })
   const { toast } = useToast()
+
+  const filteredProducts = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
   const validateForm = () => {
     if (!formData.name.trim()) {
@@ -164,11 +168,21 @@ export function ProductsContent() {
         </Button>
       </div>
 
+      <div className="mb-6">
+        <Input
+          placeholder="Search products by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+      </div>
+
       <div className="bg-card border border-border rounded overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-muted/50">
+                <th className="px-6 py-3 text-left text-sm font-semibold">Images</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Product Name</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Category</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Price</th>
@@ -178,8 +192,23 @@ export function ProductsContent() {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr key={product.id} className="border-b border-border hover:bg-muted/50">
+                  <td className="px-6 py-3 text-sm">
+                    <div className="flex gap-2">
+                      {product.images.slice(0, 2).map((image, idx) => (
+                        <div key={idx} className="w-10 h-10 rounded bg-muted overflow-hidden flex-shrink-0">
+                          <Image
+                            src={image || "/placeholder.svg"}
+                            alt={`${product.name} image ${idx + 1}`}
+                            width={40}
+                            height={40}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </td>
                   <td className="px-6 py-3 text-sm font-medium">{product.name}</td>
                   <td className="px-6 py-3 text-sm">{product.category}</td>
                   <td className="px-6 py-3 text-sm font-semibold">${product.price}</td>
@@ -375,13 +404,21 @@ export function ProductsContent() {
                 <div key={index}>
                   <label className="text-sm font-medium mb-2 block">Product Image {index + 1}</label>
                   {image ? (
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm text-muted-foreground flex-1 truncate">{image}</span>
+                    <div className="space-y-2">
+                      <div className="relative w-full h-24 rounded bg-muted overflow-hidden">
+                        <Image
+                          src={image || "/placeholder.svg"}
+                          alt={`Product image ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                       <button
                         onClick={() => handleDeleteImage(index)}
-                        className="p-1 hover:bg-destructive/10 rounded transition-colors cursor-pointer text-destructive"
+                        className="w-full p-2 border border-destructive text-destructive rounded hover:bg-destructive/10 transition-colors cursor-pointer text-sm"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4 inline mr-1" />
+                        Delete Image
                       </button>
                     </div>
                   ) : (
