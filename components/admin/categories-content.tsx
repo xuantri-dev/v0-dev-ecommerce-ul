@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { mockCategories } from "@/lib/admin-data"
-import { Edit2, Trash2, Plus, X } from "lucide-react"
+import { Edit2, Trash2, Plus, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
@@ -15,6 +14,8 @@ interface CategoryForm {
   image: string | null
 }
 
+const ITEMS_PER_PAGE = 3
+
 export function CategoriesContent() {
   const [categories, setCategories] = useState(mockCategories)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -22,6 +23,7 @@ export function CategoriesContent() {
   const [editingCategory, setEditingCategory] = useState<(typeof mockCategories)[0] | null>(null)
   const [formData, setFormData] = useState<CategoryForm>({ name: "", image: null })
   const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
   const { toast } = useToast()
 
   const validateForm = () => {
@@ -88,6 +90,9 @@ export function CategoriesContent() {
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+  const totalPages = Math.ceil(filteredCategories.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedCategories = filteredCategories.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   return (
     <div className="p-8">
@@ -106,7 +111,10 @@ export function CategoriesContent() {
         <Input
           placeholder="Search categories by name..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+            setCurrentPage(1)
+          }}
           className="max-w-sm"
         />
       </div>
@@ -124,7 +132,7 @@ export function CategoriesContent() {
               </tr>
             </thead>
             <tbody>
-              {filteredCategories.map((category) => (
+              {paginatedCategories.map((category) => (
                 <tr key={category.id} className="border-b border-border hover:bg-muted/50">
                   <td className="px-6 py-3 text-sm">
                     <div className="w-16 h-16 relative rounded overflow-hidden bg-muted flex-shrink-0">
@@ -163,6 +171,46 @@ export function CategoriesContent() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-4">
+        <p className="text-sm text-muted-foreground">
+          Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, filteredCategories.length)} of{" "}
+          {filteredCategories.length} categories
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="cursor-pointer"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+                className="cursor-pointer min-w-10"
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="cursor-pointer"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 

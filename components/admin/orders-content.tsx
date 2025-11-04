@@ -1,16 +1,21 @@
 "use client"
 
 import { mockOrders } from "@/lib/admin-data"
-import { Eye, Trash2, X } from "lucide-react"
+import { Eye, Trash2, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
+const ITEMS_PER_PAGE = 4
+
 export function OrdersContent() {
   const [orders, setOrders] = useState(mockOrders)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedOrder, setSelectedOrder] = useState<(typeof mockOrders)[0] | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null)
+  const [newStatus, setNewStatus] = useState<string>("")
   const { toast } = useToast()
 
   const filteredOrders = orders.filter(
@@ -18,10 +23,21 @@ export function OrdersContent() {
       o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       o.customer.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   const handleDeleteOrder = (id: string) => {
     setOrders(orders.filter((o) => o.id !== id))
     toast({ title: "Success", description: "Order deleted successfully" })
+  }
+
+  const handleStatusChange = (orderId: string) => {
+    setOrders(orders.map((o) => (o.id === orderId ? { ...o, status: newStatus as any } : o)))
+    toast({ title: "Success", description: "Order status updated successfully" })
+    setEditingOrderId(null)
+    setNewStatus("")
+    setSelectedOrder(null)
   }
 
   return (
@@ -35,7 +51,10 @@ export function OrdersContent() {
         <Input
           placeholder="Search orders by ID or customer..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+            setCurrentPage(1)
+          }}
           className="max-w-sm"
         />
       </div>
@@ -54,7 +73,7 @@ export function OrdersContent() {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order) => (
+              {paginatedOrders.map((order) => (
                 <tr key={order.id} className="border-b border-border hover:bg-muted/50">
                   <td className="px-6 py-3 text-sm font-mono">{order.id}</td>
                   <td className="px-6 py-3 text-sm">{order.customer}</td>
@@ -62,7 +81,7 @@ export function OrdersContent() {
                   <td className="px-6 py-3 text-sm font-semibold">${order.total}</td>
                   <td className="px-6 py-3 text-sm">
                     <span
-                      className={`px-3 py-1 rounded text-xs font-semibold ${
+                      className={`px-3 py-1 rounded text-xs font-semibold cursor-pointer ${
                         order.status === "Delivered"
                           ? "bg-green-100 text-green-800"
                           : order.status === "Shipped"
@@ -71,6 +90,10 @@ export function OrdersContent() {
                               ? "bg-yellow-100 text-yellow-800"
                               : "bg-gray-100 text-gray-800"
                       }`}
+                      onClick={() => {
+                        setEditingOrderId(order.id)
+                        setNewStatus(order.status)
+                      }}
                     >
                       {order.status}
                     </span>
@@ -79,7 +102,10 @@ export function OrdersContent() {
                     <div className="flex items-center gap-2">
                       <button
                         className="p-2 hover:bg-muted rounded transition-colors cursor-pointer"
-                        onClick={() => setSelectedOrder(order)}
+                        onClick={() => {
+                          setSelectedOrder(order)
+                          setEditingOrderId(null)
+                        }}
                       >
                         <Eye className="h-4 w-4" />
                       </button>
@@ -97,6 +123,82 @@ export function OrdersContent() {
           </table>
         </div>
       </div>
+
+      <div className="flex items-center justify-between mt-4">
+        <p className="text-sm text-muted-foreground">
+          Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, filteredOrders.length)} of{" "}
+          {filteredOrders.length} orders
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="cursor-pointer"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+                className="cursor-pointer min-w-10"
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="cursor-pointer"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {editingOrderId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background border border-border rounded-lg p-8 max-w-sm w-full mx-4">
+            <h2 className="font-serif text-2xl mb-4">Update Order Status</h2>
+            <div className="mb-6">
+              <label className="text-sm font-medium mb-2 block">Select Status</label>
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-border rounded bg-background"
+              >
+                <option value="Pending">Pending</option>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+              </select>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setEditingOrderId(null)
+                  setNewStatus("")
+                }}
+                className="flex-1 cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button onClick={() => handleStatusChange(editingOrderId)} className="flex-1 cursor-pointer">
+                Update
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedOrder && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { mockProducts } from "@/lib/admin-data"
-import { Edit2, Trash2, Plus, X } from "lucide-react"
+import { Edit2, Trash2, Plus, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
@@ -14,14 +14,18 @@ interface ProductForm {
   name: string
   category: string
   price: string
+  discount: string
   stock: string
   description: string
   images: (string | null)[]
 }
 
+const ITEMS_PER_PAGE = 5
+
 export function ProductsContent() {
   const [products, setProducts] = useState(mockProducts)
   const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
@@ -31,6 +35,7 @@ export function ProductsContent() {
     name: "",
     category: "",
     price: "",
+    discount: "",
     stock: "",
     description: "",
     images: [null, null],
@@ -38,6 +43,9 @@ export function ProductsContent() {
   const { toast } = useToast()
 
   const filteredProducts = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   const validateForm = () => {
     if (!formData.name.trim()) {
@@ -71,6 +79,7 @@ export function ProductsContent() {
       name: formData.name,
       category: formData.category,
       price: Number.parseFloat(formData.price),
+      discount: Number.parseInt(formData.discount) || 0,
       stock: Number.parseInt(formData.stock),
       status:
         Number.parseInt(formData.stock) > 20
@@ -83,8 +92,9 @@ export function ProductsContent() {
     }
 
     setProducts([...products, newProduct])
-    setFormData({ name: "", category: "", price: "", stock: "", description: "", images: [null, null] })
+    setFormData({ name: "", category: "", price: "", discount: "", stock: "", description: "", images: [null, null] })
     setIsAddModalOpen(false)
+    setCurrentPage(1)
     toast({ title: "Success", description: "Product added successfully" })
   }
 
@@ -98,6 +108,7 @@ export function ProductsContent() {
             name: formData.name,
             category: formData.category,
             price: Number.parseFloat(formData.price),
+            discount: Number.parseInt(formData.discount) || 0,
             stock: Number.parseInt(formData.stock),
             status:
               Number.parseInt(formData.stock) > 20
@@ -112,7 +123,7 @@ export function ProductsContent() {
     )
 
     setProducts(updatedProducts)
-    setFormData({ name: "", category: "", price: "", stock: "", description: "", images: [null, null] })
+    setFormData({ name: "", category: "", price: "", discount: "", stock: "", description: "", images: [null, null] })
     setIsEditModalOpen(false)
     setEditingProduct(null)
     toast({ title: "Success", description: "Product updated successfully" })
@@ -124,6 +135,7 @@ export function ProductsContent() {
       name: product.name,
       category: product.category,
       price: product.price.toString(),
+      discount: product.discount.toString(),
       stock: product.stock.toString(),
       description: product.description || "",
       images: [...product.images, null].slice(0, 2),
@@ -172,7 +184,10 @@ export function ProductsContent() {
         <Input
           placeholder="Search products by name..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+            setCurrentPage(1)
+          }}
           className="max-w-sm"
         />
       </div>
@@ -186,13 +201,14 @@ export function ProductsContent() {
                 <th className="px-6 py-3 text-left text-sm font-semibold">Product Name</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Category</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Price</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Discount</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Stock</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.map((product) => (
+              {paginatedProducts.map((product) => (
                 <tr key={product.id} className="border-b border-border hover:bg-muted/50">
                   <td className="px-6 py-3 text-sm">
                     <div className="flex gap-2">
@@ -212,6 +228,9 @@ export function ProductsContent() {
                   <td className="px-6 py-3 text-sm font-medium">{product.name}</td>
                   <td className="px-6 py-3 text-sm">{product.category}</td>
                   <td className="px-6 py-3 text-sm font-semibold">${product.price}</td>
+                  <td className="px-6 py-3 text-sm font-semibold text-orange-600">
+                    {product.discount > 0 ? `-${product.discount}%` : "-"}
+                  </td>
                   <td className="px-6 py-3 text-sm">{product.stock} units</td>
                   <td className="px-6 py-3 text-sm">
                     <span
@@ -252,6 +271,46 @@ export function ProductsContent() {
         </div>
       </div>
 
+      <div className="flex items-center justify-between mt-4">
+        <p className="text-sm text-muted-foreground">
+          Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of{" "}
+          {filteredProducts.length} products
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="cursor-pointer"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+                className="cursor-pointer min-w-10"
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="cursor-pointer"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background border border-border rounded-lg p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
@@ -282,14 +341,25 @@ export function ProductsContent() {
                   placeholder="Enter category"
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Price</label>
-                <Input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="Enter price"
-                />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Price</label>
+                  <Input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    placeholder="Enter price"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Discount %</label>
+                  <Input
+                    type="number"
+                    value={formData.discount}
+                    onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Stock Quantity</label>
@@ -349,7 +419,15 @@ export function ProductsContent() {
                 onClick={() => {
                   setIsEditModalOpen(false)
                   setEditingProduct(null)
-                  setFormData({ name: "", category: "", price: "", stock: "", description: "", images: [null, null] })
+                  setFormData({
+                    name: "",
+                    category: "",
+                    price: "",
+                    discount: "",
+                    stock: "",
+                    description: "",
+                    images: [null, null],
+                  })
                 }}
                 className="p-1 hover:bg-muted rounded transition-colors cursor-pointer"
               >
@@ -374,14 +452,25 @@ export function ProductsContent() {
                   placeholder="Enter category"
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Price</label>
-                <Input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="Enter price"
-                />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Price</label>
+                  <Input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    placeholder="Enter price"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Discount %</label>
+                  <Input
+                    type="number"
+                    value={formData.discount}
+                    onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Stock Quantity</label>
@@ -439,7 +528,15 @@ export function ProductsContent() {
                 onClick={() => {
                   setIsEditModalOpen(false)
                   setEditingProduct(null)
-                  setFormData({ name: "", category: "", price: "", stock: "", description: "", images: [null, null] })
+                  setFormData({
+                    name: "",
+                    category: "",
+                    price: "",
+                    discount: "",
+                    stock: "",
+                    description: "",
+                    images: [null, null],
+                  })
                 }}
                 className="flex-1 cursor-pointer"
               >

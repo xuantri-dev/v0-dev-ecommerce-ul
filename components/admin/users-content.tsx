@@ -1,20 +1,33 @@
 "use client"
 
 import { mockUsers } from "@/lib/admin-data"
-import { Eye, Trash2, Plus, X } from "lucide-react"
+import { Eye, Trash2, Plus, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
+
+const ITEMS_PER_PAGE = 4
 
 export function UsersContent() {
   const [users, setUsers] = useState(mockUsers)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedUser, setSelectedUser] = useState<(typeof mockUsers)[0] | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const filteredUsers = users.filter((u) => u.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   const handleDeleteUser = (id: number) => {
     setUsers(users.filter((u) => u.id !== id))
+  }
+
+  const getRoleStyles = (role: string) => {
+    if (role === "Admin") {
+      return "bg-purple-100 text-purple-800"
+    }
+    return "bg-blue-100 text-blue-800"
   }
 
   return (
@@ -34,7 +47,10 @@ export function UsersContent() {
         <Input
           placeholder="Search users by name..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+            setCurrentPage(1)
+          }}
           className="max-w-sm"
         />
       </div>
@@ -54,12 +70,12 @@ export function UsersContent() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
+              {paginatedUsers.map((user) => (
                 <tr key={user.id} className="border-b border-border hover:bg-muted/50">
                   <td className="px-6 py-3 text-sm font-medium">{user.name}</td>
                   <td className="px-6 py-3 text-sm">{user.email}</td>
                   <td className="px-6 py-3 text-sm">
-                    <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">
+                    <span className={`px-2 py-1 rounded text-xs font-semibold ${getRoleStyles(user.role)}`}>
                       {user.role}
                     </span>
                   </td>
@@ -97,6 +113,46 @@ export function UsersContent() {
         </div>
       </div>
 
+      <div className="flex items-center justify-between mt-4">
+        <p className="text-sm text-muted-foreground">
+          Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, filteredUsers.length)} of{" "}
+          {filteredUsers.length} users
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="cursor-pointer"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+                className="cursor-pointer min-w-10"
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="cursor-pointer"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       {selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background border border-border rounded-lg p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
@@ -118,7 +174,9 @@ export function UsersContent() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Role</p>
-                  <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getRoleStyles(selectedUser.role)}`}
+                  >
                     {selectedUser.role}
                   </span>
                 </div>
