@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { mockProducts } from "@/lib/admin-data"
 import { Edit2, Trash2, Plus, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -15,11 +14,13 @@ interface ProductForm {
   category: string
   price: string
   discount: string
+  discountType: "percentage" | "fixed"
   stock: string
   description: string
   images: (string | null)[]
 }
 
+const CATEGORIES = ["Outerwear", "Knitwear", "Trousers", "Shirts", "Footwear", "Accessories"]
 const ITEMS_PER_PAGE = 5
 
 export function ProductsContent() {
@@ -36,6 +37,7 @@ export function ProductsContent() {
     category: "",
     price: "",
     discount: "",
+    discountType: "percentage",
     stock: "",
     description: "",
     images: [null, null],
@@ -68,6 +70,10 @@ export function ProductsContent() {
       toast({ title: "Error", description: "Description is required", variant: "destructive" })
       return false
     }
+    if (formData.images.filter((img) => img !== null).length === 0) {
+      toast({ title: "Error", description: "At least one product image is required", variant: "destructive" })
+      return false
+    }
     return true
   }
 
@@ -79,7 +85,8 @@ export function ProductsContent() {
       name: formData.name,
       category: formData.category,
       price: Number.parseFloat(formData.price),
-      discount: Number.parseInt(formData.discount) || 0,
+      discount: formData.discount ? Number.parseInt(formData.discount) : 0,
+      discountType: formData.discountType,
       stock: Number.parseInt(formData.stock),
       status:
         Number.parseInt(formData.stock) > 20
@@ -92,7 +99,16 @@ export function ProductsContent() {
     }
 
     setProducts([...products, newProduct])
-    setFormData({ name: "", category: "", price: "", discount: "", stock: "", description: "", images: [null, null] })
+    setFormData({
+      name: "",
+      category: "",
+      price: "",
+      discount: "",
+      discountType: "percentage",
+      stock: "",
+      description: "",
+      images: [null, null],
+    })
     setIsAddModalOpen(false)
     setCurrentPage(1)
     toast({ title: "Success", description: "Product added successfully" })
@@ -108,7 +124,8 @@ export function ProductsContent() {
             name: formData.name,
             category: formData.category,
             price: Number.parseFloat(formData.price),
-            discount: Number.parseInt(formData.discount) || 0,
+            discount: formData.discount ? Number.parseInt(formData.discount) : 0,
+            discountType: formData.discountType,
             stock: Number.parseInt(formData.stock),
             status:
               Number.parseInt(formData.stock) > 20
@@ -123,7 +140,16 @@ export function ProductsContent() {
     )
 
     setProducts(updatedProducts)
-    setFormData({ name: "", category: "", price: "", discount: "", stock: "", description: "", images: [null, null] })
+    setFormData({
+      name: "",
+      category: "",
+      price: "",
+      discount: "",
+      discountType: "percentage",
+      stock: "",
+      description: "",
+      images: [null, null],
+    })
     setIsEditModalOpen(false)
     setEditingProduct(null)
     toast({ title: "Success", description: "Product updated successfully" })
@@ -136,6 +162,7 @@ export function ProductsContent() {
       category: product.category,
       price: product.price.toString(),
       discount: product.discount.toString(),
+      discountType: product.discountType,
       stock: product.stock.toString(),
       description: product.description || "",
       images: [...product.images, null].slice(0, 2),
@@ -229,7 +256,11 @@ export function ProductsContent() {
                   <td className="px-6 py-3 text-sm">{product.category}</td>
                   <td className="px-6 py-3 text-sm font-semibold">${product.price}</td>
                   <td className="px-6 py-3 text-sm font-semibold text-orange-600">
-                    {product.discount > 0 ? `-${product.discount}%` : "-"}
+                    {product.discount > 0
+                      ? product.discountType === "percentage"
+                        ? `-${product.discount}%`
+                        : `-$${product.discount}`
+                      : "-"}
                   </td>
                   <td className="px-6 py-3 text-sm">{product.stock} units</td>
                   <td className="px-6 py-3 text-sm">
@@ -335,11 +366,18 @@ export function ProductsContent() {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Category</label>
-                <Input
+                <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  placeholder="Enter category"
-                />
+                  className="w-full px-3 py-2 border border-border rounded bg-background"
+                >
+                  <option value="">Select a category</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
@@ -352,14 +390,27 @@ export function ProductsContent() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Discount %</label>
-                  <Input
-                    type="number"
-                    value={formData.discount}
-                    onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
-                    placeholder="0"
-                  />
+                  <label className="text-sm font-medium mb-2 block">Discount Type</label>
+                  <select
+                    value={formData.discountType}
+                    onChange={(e) =>
+                      setFormData({ ...formData, discountType: e.target.value as "percentage" | "fixed" })
+                    }
+                    className="w-full px-3 py-2 border border-border rounded bg-background"
+                  >
+                    <option value="percentage">Percentage %</option>
+                    <option value="fixed">Fixed Amount $</option>
+                  </select>
                 </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Discount Value (Optional)</label>
+                <Input
+                  type="number"
+                  value={formData.discount}
+                  onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
+                  placeholder="0"
+                />
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Stock Quantity</label>
@@ -379,7 +430,7 @@ export function ProductsContent() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Product Image 1</label>
+                <label className="text-sm font-medium mb-2 block">Product Image 1 (Required)</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -388,7 +439,7 @@ export function ProductsContent() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Product Image 2</label>
+                <label className="text-sm font-medium mb-2 block">Product Image 2 (Optional)</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -424,6 +475,7 @@ export function ProductsContent() {
                     category: "",
                     price: "",
                     discount: "",
+                    discountType: "percentage",
                     stock: "",
                     description: "",
                     images: [null, null],
@@ -446,11 +498,18 @@ export function ProductsContent() {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Category</label>
-                <Input
+                <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  placeholder="Enter category"
-                />
+                  className="w-full px-3 py-2 border border-border rounded bg-background"
+                >
+                  <option value="">Select a category</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
@@ -463,14 +522,27 @@ export function ProductsContent() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Discount %</label>
-                  <Input
-                    type="number"
-                    value={formData.discount}
-                    onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
-                    placeholder="0"
-                  />
+                  <label className="text-sm font-medium mb-2 block">Discount Type</label>
+                  <select
+                    value={formData.discountType}
+                    onChange={(e) =>
+                      setFormData({ ...formData, discountType: e.target.value as "percentage" | "fixed" })
+                    }
+                    className="w-full px-3 py-2 border border-border rounded bg-background"
+                  >
+                    <option value="percentage">Percentage %</option>
+                    <option value="fixed">Fixed Amount $</option>
+                  </select>
                 </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Discount Value (Optional)</label>
+                <Input
+                  type="number"
+                  value={formData.discount}
+                  onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
+                  placeholder="0"
+                />
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Stock Quantity</label>
@@ -533,6 +605,7 @@ export function ProductsContent() {
                     category: "",
                     price: "",
                     discount: "",
+                    discountType: "percentage",
                     stock: "",
                     description: "",
                     images: [null, null],

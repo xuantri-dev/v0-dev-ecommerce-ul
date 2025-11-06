@@ -55,7 +55,9 @@ export function CategoriesContent() {
     if (!validateForm()) return
 
     const updatedCategories = categories.map((c) =>
-      c.id === editingCategory?.id ? { ...c, name: formData.name, image: formData.image || c.image } : c,
+      c.id === editingCategory?.id
+        ? { ...c, name: formData.name, image: formData.image || c.image, status: editingCategory?.status || "Active" }
+        : c,
     )
 
     setCategories(updatedCategories)
@@ -286,6 +288,19 @@ export function CategoriesContent() {
                 />
               </div>
               <div>
+                <label className="text-sm font-medium mb-2 block">Status</label>
+                <select
+                  value={editingCategory?.status || "Active"}
+                  onChange={(e) =>
+                    setEditingCategory(editingCategory ? { ...editingCategory, status: e.target.value } : null)
+                  }
+                  className="w-full px-3 py-2 border border-border rounded bg-background"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+              <div>
                 <label className="text-sm font-medium mb-2 block">Category Image</label>
                 {formData.image ? (
                   <div className="space-y-2 mb-4">
@@ -322,7 +337,13 @@ export function CategoriesContent() {
               >
                 Cancel
               </Button>
-              <Button onClick={handleEditCategory} className="flex-1 cursor-pointer">
+              <Button
+                onClick={() => {
+                  handleEditCategory()
+                  setFormData({ name: "", image: null })
+                }}
+                className="flex-1 cursor-pointer"
+              >
                 Update Category
               </Button>
             </div>
