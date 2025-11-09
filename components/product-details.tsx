@@ -41,6 +41,31 @@ const mockReviews = [
     title: "Great Product",
     comment: "Very satisfied with my purchase. The only minor issue was the shipping took a bit longer than expected.",
   },
+  {
+    id: 4,
+    author: "Robert Martinez",
+    rating: 5,
+    date: "2025-01-02",
+    title: "Premium Experience",
+    comment: "Everything from packaging to delivery was premium. This is what luxury menswear should be. Impressed!",
+  },
+  {
+    id: 5,
+    author: "Christopher Lee",
+    rating: 4,
+    date: "2024-12-28",
+    title: "Worth the Investment",
+    comment: "A bit pricey but the quality justifies it. The material has a timeless appeal and excellent durability.",
+  },
+  {
+    id: 6,
+    author: "Alexander Brooks",
+    rating: 5,
+    date: "2024-12-25",
+    title: "Best Purchase",
+    comment:
+      "One of my best fashion purchases ever. The attention to detail is remarkable and it pairs well with everything.",
+  },
 ]
 
 export function ProductDetails({ product }: ProductDetailsProps) {
@@ -49,6 +74,9 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
+  const [selectedSizeActive, setSelectedSizeActive] = useState(false)
+  const [selectedColorActive, setSelectedColorActive] = useState(true)
+  const [currentReviewPage, setCurrentReviewPage] = useState(1)
   const { addItem } = useCart()
   const { toast } = useToast()
 
@@ -86,9 +114,34 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   }
   const decrementQuantity = () => setQuantity((prev) => Math.max(prev - 1, 1))
 
+  const handleSizeClick = (size: string) => {
+    if (selectedSize === size && selectedSizeActive) {
+      setSelectedSize("")
+      setSelectedSizeActive(false)
+    } else {
+      setSelectedSize(size)
+      setSelectedSizeActive(true)
+    }
+  }
+
+  const handleColorClick = (color: string) => {
+    if (selectedColor === color && selectedColorActive) {
+      setSelectedColor(product.colors[0])
+      setSelectedColorActive(false)
+    } else {
+      setSelectedColor(color)
+      setSelectedColorActive(true)
+    }
+  }
+
   const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4)
 
   const averageRating = (mockReviews.reduce((sum, review) => sum + review.rating, 0) / mockReviews.length).toFixed(1)
+
+  const REVIEWS_PER_PAGE = 3
+  const totalReviewPages = Math.ceil(mockReviews.length / REVIEWS_PER_PAGE)
+  const startReviewIndex = (currentReviewPage - 1) * REVIEWS_PER_PAGE
+  const paginatedReviews = mockReviews.slice(startReviewIndex, startReviewIndex + REVIEWS_PER_PAGE)
 
   return (
     <div className="container mx-auto px-4 lg:px-8 py-16">
@@ -143,7 +196,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               {product.colors.map((color) => (
                 <button
                   key={color}
-                  onClick={() => setSelectedColor(color)}
+                  onClick={() => handleColorClick(color)}
                   className={`px-4 py-2 border transition-colors cursor-pointer ${
                     selectedColor === color
                       ? "border-primary bg-primary text-primary-foreground"
@@ -154,6 +207,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 </button>
               ))}
             </div>
+            {selectedColorActive && <p className="text-xs text-muted-foreground">Click again to unselect.</p>}
           </div>
 
           {/* Size Selection */}
@@ -163,7 +217,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               {product.sizes.map((size) => (
                 <button
                   key={size}
-                  onClick={() => setSelectedSize(size)}
+                  onClick={() => handleSizeClick(size)}
                   className={`py-3 border transition-colors cursor-pointer ${
                     selectedSize === size
                       ? "border-primary bg-primary text-primary-foreground"
@@ -174,6 +228,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 </button>
               ))}
             </div>
+            {selectedSizeActive && <p className="text-xs text-muted-foreground">Click again to unselect.</p>}
           </div>
 
           {selectedSize && selectedColor && (
@@ -270,15 +325,18 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             </div>
           </div>
 
+          {/* Full-width horizontal review layout */}
           <div className="space-y-8">
-            {mockReviews.map((review) => (
+            {paginatedReviews.map((review) => (
               <div key={review.id} className="pb-8 border-b border-border last:border-b-0">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-3 gap-4">
+                  <div className="flex-1">
                     <h3 className="font-medium text-lg">{review.title}</h3>
                     <p className="text-sm text-muted-foreground">{review.author}</p>
                   </div>
-                  <span className="text-xs text-muted-foreground">{new Date(review.date).toLocaleDateString()}</span>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(review.date).toLocaleDateString()}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1 mb-3">
                   {[...Array(5)].map((_, i) => (
@@ -292,9 +350,44 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               </div>
             ))}
           </div>
+
+          {/* Review pagination */}
+          {totalReviewPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentReviewPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentReviewPage === 1}
+                className="cursor-pointer"
+              >
+                Previous
+              </Button>
+              <div className="flex gap-1">
+                {Array.from({ length: totalReviewPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentReviewPage === page ? "default" : "outline"}
+                    onClick={() => setCurrentReviewPage(page)}
+                    className="w-10 cursor-pointer"
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentReviewPage((prev) => Math.min(totalReviewPages, prev + 1))}
+                disabled={currentReviewPage === totalReviewPages}
+                className="cursor-pointer"
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Related Products Section */}
       {relatedProducts.length > 0 && (
         <div className="mt-24 pt-16 border-t border-border">
           <h2 className="font-serif text-3xl mb-12">Related Products</h2>

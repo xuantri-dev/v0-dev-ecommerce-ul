@@ -196,9 +196,16 @@ export const mockOrders = [
 
 export const dashboardStats = {
   totalRevenue: "$45,230",
+  previousMonthRevenue: "$38,500",
+  revenueChange: 17.5,
   totalOrders: 1240,
+  previousMonthOrders: 1050,
+  ordersChange: 18.1,
   totalCustomers: 856,
+  previousMonthCustomers: 742,
+  customersChange: 15.4,
   averageOrderValue: "$36.50",
+  pendingOrders: 10,
 }
 
 export const mockVouchers = [
@@ -300,4 +307,12 @@ export const mockVouchers = [
     status: "Active",
     hasExpiration: true,
   },
+]
+
+export const bestSellingProducts = [
+  { id: 1, name: "Cashmere Overcoat", sales: 156, revenue: 187200 },
+  { id: 2, name: "Oxford Shirt", sales: 342, revenue: 61560 },
+  { id: 3, name: "Merino Wool Sweater", sales: 128, revenue: 44800 },
+  { id: 4, name: "Leather Loafers", sales: 94, revenue: 39480 },
+  { id: 5, name: "Tailored Trousers", sales: 167, revenue: 46760 },
 ]

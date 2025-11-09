@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Package, Truck, CheckCircle, XCircle } from "lucide-react"
+import { Package, Truck, CheckCircle, XCircle, ChevronDown, ChevronUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
@@ -416,6 +416,7 @@ export function OrdersContent() {
     isOpen: false,
     orderId: null,
   })
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
 
   const handleCancelOrder = (orderId: string) => {
     setCancelConfirmation({ isOpen: true, orderId })
@@ -447,12 +448,13 @@ export function OrdersContent() {
         <div className="space-y-6">
           {mockOrders.map((order) => {
             const StatusIcon = statusConfig[order.status as keyof typeof statusConfig].icon
+            const isExpanded = expandedOrderId === order.id
 
             return (
-              <Card key={order.id}>
-                <CardHeader>
+              <Card key={order.id} className="overflow-hidden transition-all duration-300">
+                <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
+                    <div className="flex-1">
                       <CardTitle className="flex items-center gap-3">
                         <Package className="h-5 w-5" />
                         {order.id}
@@ -467,32 +469,36 @@ export function OrdersContent() {
                         <StatusIcon className="h-3 w-3 mr-1" />
                         {statusConfig[order.status as keyof typeof statusConfig].label}
                       </Badge>
-                      {order.status === "confirmed" && (
-                        <Button variant="outline" size="sm" onClick={() => handleCancelOrder(order.id)}>
-                          Cancel Order
-                        </Button>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
+                        className="cursor-pointer"
+                      >
+                        {isExpanded ? (
+                          <>
+                            Hide Details
+                            <ChevronUp className="ml-2 h-4 w-4" />
+                          </>
+                        ) : (
+                          <>
+                            View Details
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                          </>
+                        )}
+                      </Button>
                     </div>
+                  </div>
+                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground">
+                      {order.items.length} {order.items.length === 1 ? "item" : "items"}
+                    </p>
+                    <p className="text-xl font-semibold">${order.total.toFixed(2)}</p>
                   </div>
                 </CardHeader>
 
-                <CardContent>
-                  <div className="space-y-6">
-                    {/* Order Summary */}
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          {order.items.length} {order.items.length === 1 ? "item" : "items"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {statusConfig[order.status as keyof typeof statusConfig].description}
-                        </p>
-                      </div>
-                      <p className="text-xl font-semibold">${order.total.toFixed(2)}</p>
-                    </div>
-
-                    <Separator />
-
+                {isExpanded && (
+                  <CardContent className="space-y-6 border-t border-border pt-6 animate-in fade-in slide-in-from-top-2 duration-300">
                     {/* Order Items */}
                     <div className="space-y-4">
                       <h4 className="font-semibold">Order Items</h4>
@@ -569,8 +575,18 @@ export function OrdersContent() {
                         <span>${order.total.toFixed(2)}</span>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
+
+                    {order.status === "confirmed" && (
+                      <Button
+                        variant="destructive"
+                        className="w-full cursor-pointer"
+                        onClick={() => handleCancelOrder(order.id)}
+                      >
+                        Cancel Order
+                      </Button>
+                    )}
+                  </CardContent>
+                )}
               </Card>
             )
           })}
@@ -582,6 +598,7 @@ export function OrdersContent() {
               variant="outline"
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
+              className="cursor-pointer"
             >
               Previous
             </Button>
@@ -591,7 +608,7 @@ export function OrdersContent() {
                   key={page}
                   variant={currentPage === page ? "default" : "outline"}
                   onClick={() => setCurrentPage(page)}
-                  className="w-10"
+                  className="w-10 cursor-pointer"
                 >
                   {page}
                 </Button>
@@ -601,6 +618,7 @@ export function OrdersContent() {
               variant="outline"
               onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
+              className="cursor-pointer"
             >
               Next
             </Button>
@@ -613,7 +631,7 @@ export function OrdersContent() {
               <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
               <h3 className="font-serif text-2xl mb-2">No orders yet</h3>
               <p className="text-muted-foreground mb-6">Start shopping to see your orders here</p>
-              <Button asChild>
+              <Button asChild className="cursor-pointer">
                 <Link href="/shop">Browse Products</Link>
               </Button>
             </CardContent>
@@ -632,10 +650,14 @@ export function OrdersContent() {
               </DialogDescription>
             </DialogHeader>
             <div className="flex gap-2 justify-end pt-4">
-              <Button variant="outline" onClick={() => setCancelConfirmation({ isOpen: false, orderId: null })}>
+              <Button
+                variant="outline"
+                onClick={() => setCancelConfirmation({ isOpen: false, orderId: null })}
+                className="cursor-pointer"
+              >
                 Keep Order
               </Button>
-              <Button variant="destructive" onClick={handleConfirmCancel}>
+              <Button variant="destructive" onClick={handleConfirmCancel} className="cursor-pointer">
                 Cancel Order
               </Button>
             </div>
