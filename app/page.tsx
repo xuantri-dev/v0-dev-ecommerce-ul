@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { ChatBox } from "@/components/chat-box"
 import {
   getFeaturedProducts,
   getCategories,
@@ -13,7 +14,7 @@ import {
   getPromotionalProducts,
 } from "@/lib/products"
 import { ProductCard } from "@/components/product-card"
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function HomePage() {
   const featuredProducts = getFeaturedProducts()
@@ -491,6 +492,8 @@ export default function HomePage() {
       </main>
 
       <Footer />
+      
+      <ChatBox userType="customer" />
     </div>
   )
 }

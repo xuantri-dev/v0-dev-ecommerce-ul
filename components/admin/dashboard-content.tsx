@@ -1,18 +1,77 @@
+"use client"
+
 import { dashboardStats, mockOrders, bestSellingProducts } from "@/lib/admin-data"
-import { TrendingUp, ShoppingBag, Users, DollarSign, AlertCircle, ArrowUp, ArrowDown } from "lucide-react"
+import { TrendingUp, ShoppingBag, Users, DollarSign, AlertCircle, ArrowUp, ArrowDown, Bell, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useState } from "react"
+
+const mockNotifications = [
+  { id: 1, type: "order", title: "New Order Received", message: "Order ORD-011 from James Morrison - $1,850", time: "5 mins ago" },
+  { id: 2, type: "promotion", title: "Low Stock Alert", message: "Merino Wool Sweater has only 3 items left", time: "15 mins ago" },
+  { id: 3, type: "update", title: "Order Shipped", message: "Order ORD-009 has been shipped to Benjamin Scott", time: "1 hour ago" },
+  { id: 4, type: "promotion", title: "Voucher Expiring", message: "SPRING30 voucher expires in 2 days", time: "2 hours ago" },
+  { id: 5, type: "order", title: "New Customer Registered", message: "New user: Christopher Lee joined the platform", time: "3 hours ago" },
+]
 
 export function DashboardContent() {
+  const [showNotifications, setShowNotifications] = useState(false)
+
   const formatChange = (value: number) => {
     return value > 0 ? `+${value.toFixed(1)}%` : `${value.toFixed(1)}%`
   }
 
   return (
     <div className="p-8">
-      <div className="mb-8">
-        <h1 className="font-serif text-4xl font-bold mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back to your admin panel</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="font-serif text-4xl font-bold mb-2">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome back to your admin panel</p>
+        </div>
+        {/* Notification button with dropdown */}
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="relative cursor-pointer"
+          >
+            <Bell className="h-5 w-5" />
+            <span className="absolute top-0 right-0 h-3 w-3 bg-red-500 rounded-full"></span>
+          </Button>
+
+          {showNotifications && (
+            <div className="absolute right-0 top-12 w-96 bg-background border border-border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+              <div className="p-4 border-b border-border flex items-center justify-between">
+                <h3 className="font-semibold">Notifications</h3>
+                <button
+                  onClick={() => setShowNotifications(false)}
+                  className="p-1 hover:bg-muted rounded cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="divide-y divide-border">
+                {mockNotifications.map((notification) => (
+                  <div key={notification.id} className="p-4 hover:bg-muted/50 cursor-pointer transition-colors">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        {notification.type === "order" && <ShoppingBag className="h-4 w-4 text-blue-600" />}
+                        {notification.type === "promotion" && <AlertCircle className="h-4 w-4 text-amber-600" />}
+                        {notification.type === "update" && <TrendingUp className="h-4 w-4 text-green-600" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{notification.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{notification.message}</p>
+                        <p className="text-xs text-muted-foreground mt-2">{notification.time}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mb-8 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-6 flex items-start gap-4">

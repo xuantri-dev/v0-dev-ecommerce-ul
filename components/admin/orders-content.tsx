@@ -1,7 +1,7 @@
 "use client"
 
 import { mockOrders } from "@/lib/admin-data"
-import { Eye, Trash2, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Eye, Trash2, X, ChevronLeft, ChevronRight, RefreshCw, ArrowUpDown } from 'lucide-react'
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Input } from "@/components/ui/input"
@@ -10,12 +10,16 @@ import { Button } from "@/components/ui/button"
 const ITEMS_PER_PAGE = 4
 
 export function OrdersContent() {
-  const [orders, setOrders] = useState(mockOrders)
+  const [orders, setOrders] = useState(mockOrders.map(o => ({
+    ...o,
+    paymentMethod: ["COD", "MoMo", "VNPay", "Stripe"][Math.floor(Math.random() * 4)]
+  })))
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedOrder, setSelectedOrder] = useState<(typeof mockOrders)[0] | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null)
   const [newStatus, setNewStatus] = useState<string>("")
+  const [sortByStatus, setSortByStatus] = useState(false)
   const { toast } = useToast()
 
   const filteredOrders = orders.filter(
@@ -23,9 +27,14 @@ export function OrdersContent() {
       o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       o.customer.toLowerCase().includes(searchTerm.toLowerCase()),
   )
-  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE)
+
+  const sortedOrders = sortByStatus
+    ? filteredOrders.sort((a, b) => a.status.localeCompare(b.status))
+    : filteredOrders
+
+  const totalPages = Math.ceil(sortedOrders.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const paginatedOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  const paginatedOrders = sortedOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   const handleDeleteOrder = (id: string) => {
     setOrders(orders.filter((o) => o.id !== id))
@@ -40,6 +49,12 @@ export function OrdersContent() {
     setSelectedOrder(null)
   }
 
+  const handleRefresh = () => {
+    setCurrentPage(1)
+    setSortByStatus(false)
+    setSearchTerm("")
+  }
+
   return (
     <div className="p-8">
       <div>
@@ -47,16 +62,38 @@ export function OrdersContent() {
         <p className="text-muted-foreground mb-6">Manage and track customer orders</p>
       </div>
 
-      <div className="mb-6">
-        <Input
-          placeholder="Search orders by ID or customer..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value)
-            setCurrentPage(1)
-          }}
-          className="max-w-sm"
-        />
+      <div className="mb-6 flex gap-4 items-end">
+        <div className="flex-1">
+          <Input
+            placeholder="Search orders by ID or customer..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setCurrentPage(1)
+            }}
+            className="max-w-sm"
+          />
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant={sortByStatus ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSortByStatus(!sortByStatus)}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <ArrowUpDown className="h-4 w-4" />
+            Sort by Status
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <div className="bg-card border border-border rounded overflow-hidden">
@@ -68,6 +105,7 @@ export function OrdersContent() {
                 <th className="px-6 py-3 text-left text-sm font-semibold">Customer</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Date</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Total</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Payment</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
               </tr>
@@ -80,15 +118,20 @@ export function OrdersContent() {
                   <td className="px-6 py-3 text-sm">{order.date}</td>
                   <td className="px-6 py-3 text-sm font-semibold">${order.total}</td>
                   <td className="px-6 py-3 text-sm">
+                    <span className="px-2 py-1 rounded text-xs font-semibold bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                      {order.paymentMethod}
+                    </span>
+                  </td>
+                  <td className="px-6 py-3 text-sm">
                     <span
                       className={`px-3 py-1 rounded text-xs font-semibold cursor-pointer ${
                         order.status === "Delivered"
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                           : order.status === "Shipped"
-                            ? "bg-blue-100 text-blue-800"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
                             : order.status === "Processing"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-gray-100 text-gray-800"
+                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                              : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
                       }`}
                       onClick={() => {
                         setEditingOrderId(order.id)
@@ -126,8 +169,8 @@ export function OrdersContent() {
 
       <div className="flex items-center justify-between mt-4">
         <p className="text-sm text-muted-foreground">
-          Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, filteredOrders.length)} of{" "}
-          {filteredOrders.length} orders
+          Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, sortedOrders.length)} of{" "}
+          {sortedOrders.length} orders
         </p>
         <div className="flex gap-2">
           <Button
@@ -224,12 +267,12 @@ export function OrdersContent() {
                   <span
                     className={`px-3 py-1 rounded text-xs font-semibold inline-block ${
                       selectedOrder.status === "Delivered"
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                         : selectedOrder.status === "Shipped"
-                          ? "bg-blue-100 text-blue-800"
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
                           : selectedOrder.status === "Processing"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-gray-100 text-gray-800"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
                     }`}
                   >
                     {selectedOrder.status}
@@ -242,6 +285,10 @@ export function OrdersContent() {
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Order Date</p>
                   <p className="font-semibold">{selectedOrder.date}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Payment Method</p>
+                  <p className="font-semibold">{selectedOrder.paymentMethod}</p>
                 </div>
               </div>
 

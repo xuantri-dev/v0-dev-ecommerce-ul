@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
 import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/lib/products"
-import { Check, Minus, Plus, Star } from "lucide-react"
+import { Check, Minus, Plus, Star } from 'lucide-react'
 import Link from "next/link"
 import { products } from "@/lib/products"
 
@@ -134,7 +134,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     }
   }
 
-  const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4)
+  const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 8)
 
   const averageRating = (mockReviews.reduce((sum, review) => sum + review.rating, 0) / mockReviews.length).toFixed(1)
 
@@ -228,7 +228,9 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 </button>
               ))}
             </div>
-            {selectedSizeActive && <p className="text-xs text-muted-foreground">Click again to unselect.</p>}
+            <div className="h-5">
+              {selectedSizeActive && <p className="text-xs text-muted-foreground">Click again to unselect.</p>}
+            </div>
           </div>
 
           {selectedSize && selectedColor && (

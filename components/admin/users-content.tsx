@@ -1,7 +1,7 @@
 "use client"
 
 import { mockUsers } from "@/lib/admin-data"
-import { Eye, Trash2, Plus, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Eye, Trash2, Plus, X, ChevronLeft, ChevronRight, RefreshCw, ArrowUpDown } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
@@ -13,21 +13,38 @@ export function UsersContent() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedUser, setSelectedUser] = useState<(typeof mockUsers)[0] | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [sortByRole, setSortByRole] = useState(false)
+
+  const totalUsers = users.length
+  const totalAdmins = users.filter(u => u.role === "Admin").length
+  const totalCustomers = users.filter(u => u.role === "Customer").length
+  const verifiedUsers = users.filter(u => u.role === "Customer" && u.emailVerified).length
 
   const filteredUsers = users.filter((u) => u.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE)
+  
+  const sortedUsers = sortByRole
+    ? filteredUsers.sort((a, b) => a.role.localeCompare(b.role))
+    : filteredUsers
+
+  const totalPages = Math.ceil(sortedUsers.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  const paginatedUsers = sortedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   const handleDeleteUser = (id: number) => {
     setUsers(users.filter((u) => u.id !== id))
   }
 
+  const handleRefresh = () => {
+    setCurrentPage(1)
+    setSortByRole(false)
+    setSearchTerm("")
+  }
+
   const getRoleStyles = (role: string) => {
     if (role === "Admin") {
-      return "bg-purple-100 text-purple-800"
+      return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
     }
-    return "bg-blue-100 text-blue-800"
+    return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
   }
 
   return (
@@ -43,16 +60,57 @@ export function UsersContent() {
         </Button>
       </div>
 
-      <div className="mb-6">
-        <Input
-          placeholder="Search users by name..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value)
-            setCurrentPage(1)
-          }}
-          className="max-w-sm"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-card border border-border p-4 rounded">
+          <p className="text-sm text-muted-foreground mb-1">Total Users</p>
+          <p className="font-serif text-3xl font-bold">{totalUsers}</p>
+        </div>
+        <div className="bg-card border border-border p-4 rounded">
+          <p className="text-sm text-muted-foreground mb-1">Administrators</p>
+          <p className="font-serif text-3xl font-bold">{totalAdmins}</p>
+        </div>
+        <div className="bg-card border border-border p-4 rounded">
+          <p className="text-sm text-muted-foreground mb-1">Customers</p>
+          <p className="font-serif text-3xl font-bold">{totalCustomers}</p>
+        </div>
+        <div className="bg-card border border-border p-4 rounded">
+          <p className="text-sm text-muted-foreground mb-1">Verified Users</p>
+          <p className="font-serif text-3xl font-bold">{verifiedUsers}</p>
+        </div>
+      </div>
+
+      <div className="mb-6 flex gap-4 items-end">
+        <div className="flex-1">
+          <Input
+            placeholder="Search users by name..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setCurrentPage(1)
+            }}
+            className="max-w-sm"
+          />
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant={sortByRole ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSortByRole(!sortByRole)}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <ArrowUpDown className="h-4 w-4" />
+            Sort by Role
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <div className="bg-card border border-border rounded overflow-hidden">
@@ -60,8 +118,7 @@ export function UsersContent() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="px-6 py-3 text-left text-sm font-semibold">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Email</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">User Info</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Role</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Join Date</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Orders</th>
@@ -72,8 +129,13 @@ export function UsersContent() {
             <tbody>
               {paginatedUsers.map((user) => (
                 <tr key={user.id} className="border-b border-border hover:bg-muted/50">
-                  <td className="px-6 py-3 text-sm font-medium">{user.name}</td>
-                  <td className="px-6 py-3 text-sm">{user.email}</td>
+                  <td className="px-6 py-3 text-sm">
+                    <div>
+                      <p className="font-medium">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                      <p className="text-xs text-muted-foreground">{user.phone}</p>
+                    </div>
+                  </td>
                   <td className="px-6 py-3 text-sm">
                     <span className={`px-2 py-1 rounded text-xs font-semibold ${getRoleStyles(user.role)}`}>
                       {user.role}
@@ -82,13 +144,24 @@ export function UsersContent() {
                   <td className="px-6 py-3 text-sm">{user.joinDate}</td>
                   <td className="px-6 py-3 text-sm">{user.orders}</td>
                   <td className="px-6 py-3 text-sm">
-                    <span
-                      className={`px-3 py-1 rounded text-xs font-semibold ${
-                        user.status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
+                    <div className="space-y-1">
+                      <span
+                        className={`px-3 py-1 rounded text-xs font-semibold block w-fit ${
+                          user.status === "Active"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                        }`}
+                      >
+                        {user.status}
+                      </span>
+                      <span className={`px-3 py-1 rounded text-xs font-semibold block w-fit ${
+                        user.emailVerified
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
+                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                      }`}>
+                        {user.emailVerified ? "Verified" : "Unverified"}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-6 py-3 text-sm">
                     <div className="flex items-center gap-2">
@@ -115,8 +188,8 @@ export function UsersContent() {
 
       <div className="flex items-center justify-between mt-4">
         <p className="text-sm text-muted-foreground">
-          Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, filteredUsers.length)} of{" "}
-          {filteredUsers.length} users
+          Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, sortedUsers.length)} of{" "}
+          {sortedUsers.length} users
         </p>
         <div className="flex gap-2">
           <Button
@@ -185,6 +258,10 @@ export function UsersContent() {
                   <p className="font-semibold">{selectedUser.email}</p>
                 </div>
                 <div>
+                  <p className="text-sm text-muted-foreground mb-1">Phone</p>
+                  <p className="font-semibold">{selectedUser.phone}</p>
+                </div>
+                <div>
                   <p className="text-sm text-muted-foreground mb-1">Registration Date</p>
                   <p className="font-semibold">{selectedUser.joinDate}</p>
                 </div>
@@ -192,10 +269,24 @@ export function UsersContent() {
                   <p className="text-sm text-muted-foreground mb-1">Account Status</p>
                   <span
                     className={`px-3 py-1 rounded text-xs font-semibold ${
-                      selectedUser.status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                      selectedUser.status === "Active"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
                     }`}
                   >
                     {selectedUser.status}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Email Verification</p>
+                  <span
+                    className={`px-3 py-1 rounded text-xs font-semibold ${
+                      selectedUser.emailVerified
+                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
+                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                    }`}
+                  >
+                    {selectedUser.emailVerified ? "Verified" : "Unverified"}
                   </span>
                 </div>
                 <div>

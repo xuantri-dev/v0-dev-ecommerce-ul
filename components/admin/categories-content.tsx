@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { mockCategories } from "@/lib/admin-data"
-import { Edit2, Trash2, Plus, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Edit2, Trash2, Plus, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
@@ -149,7 +149,11 @@ export function CategoriesContent() {
                   <td className="px-6 py-3 text-sm font-medium">{category.name}</td>
                   <td className="px-6 py-3 text-sm">{category.productCount} products</td>
                   <td className="px-6 py-3 text-sm">
-                    <span className="px-3 py-1 rounded text-xs font-semibold bg-green-100 text-green-800">
+                    <span className={`px-3 py-1 rounded text-xs font-semibold ${
+                      category.status === "Active"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                    }`}>
                       {category.status}
                     </span>
                   </td>
