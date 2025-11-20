@@ -129,6 +129,105 @@ export const products: Product[] = [
     featured: true,
     stock: 9,
   },
+  {
+    id: "10",
+    name: "Premium Wool Vest",
+    category: "Knitwear",
+    price: 325,
+    description:
+      "Sophisticated wool blend vest with V-neckline. Perfect layering piece for any formal or business casual outfit.",
+    images: ["/wool-vest.jpg", "/placeholder.svg?height=800&width=600"],
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Charcoal", "Navy", "Grey"],
+    featured: true,
+    stock: 14,
+  },
+  {
+    id: "11",
+    name: "Italian Leather Loafers",
+    category: "Footwear",
+    price: 595,
+    description:
+      "Timeless leather loafers crafted from premium Italian leather. Comfortable yet sophisticated for any occasion.",
+    images: ["/leather-loafers.jpg", "/placeholder.svg?height=800&width=600"],
+    sizes: ["7", "8", "9", "10", "11", "12"],
+    colors: ["Black", "Brown"],
+    featured: false,
+    stock: 16,
+  },
+  {
+    id: "12",
+    name: "Wool Turtleneck",
+    category: "Knitwear",
+    price: 385,
+    description: "Classic wool turtleneck sweater in premium quality. Warm and elegant for layering or wearing solo.",
+    images: ["/turtleneck.png", "/placeholder.svg?height=800&width=600"],
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Black", "Navy", "Burgundy", "Grey"],
+    featured: true,
+    stock: 11,
+  },
+  {
+    id: "13",
+    name: "Linen Dress Shirt",
+    category: "Shirts",
+    price: 245,
+    description: "Summer staple linen dress shirt with breathable fabric. Perfect for warm weather elegance.",
+    images: ["/linen-shirt.jpg", "/placeholder.svg?height=800&width=600"],
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["White", "Beige", "Light Blue"],
+    featured: false,
+    stock: 22,
+  },
+  {
+    id: "14",
+    name: "Wool Overcoat Navy",
+    category: "Outerwear",
+    price: 1650,
+    description:
+      "Classic navy wool overcoat with elegant tailoring. A wardrobe essential for the discerning gentleman.",
+    images: ["/navy-coat.jpg", "/placeholder.svg?height=800&width=600"],
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Navy"],
+    featured: true,
+    stock: 9,
+  },
+  {
+    id: "15",
+    name: "Silk Tie Collection",
+    category: "Accessories",
+    price: 125,
+    description: "Fine silk ties in various patterns. Add the perfect finishing touch to any formal ensemble.",
+    images: ["/silk-tie.jpg", "/placeholder.svg?height=800&width=600"],
+    sizes: ["One Size"],
+    colors: ["Navy", "Burgundy", "Grey", "Black"],
+    featured: false,
+    stock: 30,
+  },
+  {
+    id: "16",
+    name: "Leather Oxford Shoes",
+    category: "Footwear",
+    price: 675,
+    description: "Formal leather Oxford shoes handcrafted in Italy. The perfect complement to formal attire.",
+    images: ["/oxford-shoes.jpg", "/placeholder.svg?height=800&width=600"],
+    sizes: ["7", "8", "9", "10", "11", "12"],
+    colors: ["Black", "Tan"],
+    featured: true,
+    stock: 13,
+  },
+  {
+    id: "17",
+    name: "Cotton Polo Shirt",
+    category: "Shirts",
+    price: 185,
+    description: "Premium cotton polo shirt for smart-casual occasions. Comfortable and versatile.",
+    images: ["/polo-shirt.jpg", "/placeholder.svg?height=800&width=600"],
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["White", "Navy", "Light Blue", "Grey"],
+    featured: false,
+    stock: 25,
+  },
 ]
 
 export function getFeaturedProducts() {
@@ -146,7 +245,6 @@ export function getProductsByCategory(category: string) {
 export function getCategories() {
   const uniqueCategories = Array.from(new Set(products.map((p) => p.category)))
 
-  // Map categories to their display information
   const categoryMap: Record<string, { name: string; image: string; href: string }> = {
     Outerwear: { name: "Outerwear", image: "/luxury-coat.jpg", href: "/shop?category=Outerwear" },
     Knitwear: { name: "Knitwear", image: "/soft-cashmere-sweater.png", href: "/shop?category=Knitwear" },
@@ -167,16 +265,13 @@ export function getCategories() {
 }
 
 export function getHotProducts() {
-  // Return products with high stock (trending/popular)
   return products.filter((p) => p.stock > 10).slice(0, 4)
 }
 
 export function getBestSellingProducts() {
-  // Return featured products (best sellers)
   return products.filter((p) => p.featured).slice(0, 4)
 }
 
 export function getPromotionalProducts() {
-  // Return products with lower stock (promotional/limited)
   return products.filter((p) => p.stock < 10).slice(0, 4)
 }

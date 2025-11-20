@@ -1,17 +1,47 @@
 "use client"
 
 import { dashboardStats, mockOrders, bestSellingProducts } from "@/lib/admin-data"
-import { TrendingUp, ShoppingBag, Users, DollarSign, AlertCircle, ArrowUp, ArrowDown, Bell, X } from 'lucide-react'
+import { TrendingUp, ShoppingBag, Users, DollarSign, AlertCircle, ArrowUp, ArrowDown, Bell, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useState } from "react"
 
 const mockNotifications = [
-  { id: 1, type: "order", title: "New Order Received", message: "Order ORD-011 from James Morrison - $1,850", time: "5 mins ago" },
-  { id: 2, type: "promotion", title: "Low Stock Alert", message: "Merino Wool Sweater has only 3 items left", time: "15 mins ago" },
-  { id: 3, type: "update", title: "Order Shipped", message: "Order ORD-009 has been shipped to Benjamin Scott", time: "1 hour ago" },
-  { id: 4, type: "promotion", title: "Voucher Expiring", message: "SPRING30 voucher expires in 2 days", time: "2 hours ago" },
-  { id: 5, type: "order", title: "New Customer Registered", message: "New user: Christopher Lee joined the platform", time: "3 hours ago" },
+  {
+    id: 1,
+    type: "order",
+    title: "New Order Received",
+    message: "Order ORD-011 from James Morrison - $1,850",
+    time: "5 mins ago",
+  },
+  {
+    id: 2,
+    type: "promotion",
+    title: "Low Stock Alert",
+    message: "Merino Wool Sweater has only 3 items left",
+    time: "15 mins ago",
+  },
+  {
+    id: 3,
+    type: "update",
+    title: "Order Shipped",
+    message: "Order ORD-009 has been shipped to Benjamin Scott",
+    time: "1 hour ago",
+  },
+  {
+    id: 4,
+    type: "promotion",
+    title: "Voucher Expiring",
+    message: "SPRING30 voucher expires in 2 days",
+    time: "2 hours ago",
+  },
+  {
+    id: 5,
+    type: "order",
+    title: "New Customer Registered",
+    message: "New user: Christopher Lee joined the platform",
+    time: "3 hours ago",
+  },
 ]
 
 export function DashboardContent() {
@@ -68,6 +98,11 @@ export function DashboardContent() {
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="p-4 flex justify-end">
+                <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white cursor-pointer">
+                  View more
+                </Button>
               </div>
             </div>
           )}

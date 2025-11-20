@@ -154,6 +154,12 @@ export function Header() {
                     </DropdownMenuItem>
                   ))}
                 </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/notifications" className="cursor-pointer text-center w-full justify-center">
+                    <span className="text-sm font-medium">View more</span>
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 

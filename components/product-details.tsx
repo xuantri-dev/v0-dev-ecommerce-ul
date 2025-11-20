@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
 import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/lib/products"
-import { Check, Minus, Plus, Star } from 'lucide-react'
+import { Check, Minus, Plus, Star } from "lucide-react"
 import Link from "next/link"
 import { products } from "@/lib/products"
 
@@ -70,12 +70,12 @@ const mockReviews = [
 
 export function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedSize, setSelectedSize] = useState("")
-  const [selectedColor, setSelectedColor] = useState(product.colors[0])
+  const [selectedColor, setSelectedColor] = useState("") // Updated to show selected color or "SELECT COLOR"
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
   const [selectedSizeActive, setSelectedSizeActive] = useState(false)
-  const [selectedColorActive, setSelectedColorActive] = useState(true)
+  const [selectedColorActive, setSelectedColorActive] = useState(false) // Updated to show selected color or "SELECT COLOR"
   const [currentReviewPage, setCurrentReviewPage] = useState(1)
   const { addItem } = useCart()
   const { toast } = useToast()
@@ -126,7 +126,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
   const handleColorClick = (color: string) => {
     if (selectedColor === color && selectedColorActive) {
-      setSelectedColor(product.colors[0])
+      setSelectedColor("")
       setSelectedColorActive(false)
     } else {
       setSelectedColor(color)
@@ -191,7 +191,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
           {/* Color Selection */}
           <div className="space-y-3">
-            <label className="text-sm font-medium tracking-wide">COLOR: {selectedColor}</label>
+            <label className="text-sm font-medium tracking-wide">COLOR: {selectedColor || "SELECT COLOR"}</label>
             <div className="flex gap-3">
               {product.colors.map((color) => (
                 <button
